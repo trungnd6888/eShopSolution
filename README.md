@@ -2,3 +2,7 @@
 ## Technologies 
 - ASP.NET CORE in .NET 6
 - Entity Framework .NET 6
+## Install Parkages
+- Microsoft.EntityFrameworkCore.SqlServer
+- Microsoft.EntityFrameworkCore.Tools
+- Microsoft.EntityFrameworkCore.Design
