@@ -17,8 +17,8 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.CreateDate);
             builder.Property(x => x.IsApproved).HasDefaultValue(false);
-            builder.HasOne<User>(x => x.User).WithMany(u => u.News).HasForeignKey(x => x.UserId);
-            builder.HasOne<User>(x => x.User).WithMany(u => u.News).HasForeignKey(x => x.ApprovedId);
+            builder.HasOne<AppUser>(x => x.AppUser).WithMany(u => u.News).HasForeignKey(x => x.UserId);
+            builder.HasOne<AppUser>(x => x.AppUser).WithMany(u => u.News).HasForeignKey(x => x.ApprovedId);
         }
     }
 }

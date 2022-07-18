@@ -20,7 +20,7 @@ namespace eShopSolution.Data.Entities
         public int UserId { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
-        public User User { get; set; }
+        public AppUser AppUser { get; set; }
         public List<ProductDistributor> ProductDistributors { get; set; }
         public List<ProductCategory> ProductCategories { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }

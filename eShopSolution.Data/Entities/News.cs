@@ -17,6 +17,6 @@ namespace eShopSolution.Data.Entities
         public bool IsApproved { get; set; }
         public int UserId { get; set; }
         public int ApprovedId { get; set; }
-        public User User { get; set; }
+        public AppUser AppUser { get; set; }
     }
 }
