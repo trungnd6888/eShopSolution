@@ -12,5 +12,6 @@ namespace eShopSolution.Data.Entities
         public string Name { get; set; }
         public string Describe { get; set; }
         public string FormName { get; set; }
+        public List<Permission> Permissions { get; set; }
     }
 }

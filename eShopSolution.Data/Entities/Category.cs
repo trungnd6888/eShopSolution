@@ -12,5 +12,6 @@ namespace eShopSolution.Data.Entities
         public string Name { get; set; }
         public string ImageUrl { get; set; }
         public int Order { get; set; }
+        public List<ProductCategory> ProductCategories { get; set; }
     }
 }
