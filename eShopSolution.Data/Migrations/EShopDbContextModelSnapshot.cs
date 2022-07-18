@@ -149,6 +149,26 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Customers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Hà Nội",
+                            Birthday = new DateTime(1993, 9, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "trungk47s5@gmail.com",
+                            Name = "Nguyễn Trung",
+                            Tel = "0985052368"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Hà Nội",
+                            Birthday = new DateTime(1992, 6, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "tuank47s5@gmail.com",
+                            Name = "Nguyễn Tuân",
+                            Tel = "098121322"
+                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Distributor", b =>
@@ -397,9 +417,9 @@ namespace eShopSolution.Data.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(300)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(300)");
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -431,9 +451,9 @@ namespace eShopSolution.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(30)");
+                        .HasMaxLength(300)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<double>("Price")
                         .ValueGeneratedOnAdd()
@@ -448,6 +468,50 @@ namespace eShopSolution.Data.Migrations
                     b.HasIndex("ApprovedId");
 
                     b.ToTable("Products", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ApprovedId = 1,
+                            Code = "DH0001",
+                            CreateDate = new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3332),
+                            Detail = "Automatic",
+                            IsApproved = false,
+                            IsBestSale = false,
+                            IsNew = false,
+                            Name = "Đồng hồ Rolex",
+                            Price = 88000.0,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ApprovedId = 1,
+                            Code = "DH0002",
+                            CreateDate = new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3346),
+                            Detail = "Automatic",
+                            IsApproved = false,
+                            IsBestSale = false,
+                            IsNew = false,
+                            Name = "Đồng hồ Patek Phillip",
+                            Price = 10000.0,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ApprovedId = 1,
+                            Code = "DH0003",
+                            CreateDate = new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3349),
+                            Detail = "Automatic",
+                            IsApproved = false,
+                            IsBestSale = false,
+                            IsNew = false,
+                            Name = "Đồng hồ Hublot",
+                            Price = 2000.0,
+                            UserId = 1
+                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.ProductCategory", b =>
@@ -502,6 +566,20 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Describe = "Quản trị viên",
+                            Name = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Describe = "Thành viên",
+                            Name = "member"
+                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Status", b =>
@@ -580,6 +658,20 @@ namespace eShopSolution.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Hà Nội",
+                            CreateDate = new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3378),
+                            Email = "duc@gmail.com",
+                            Name = "Nguyễn Phúc Đức",
+                            Password = "123456",
+                            RoleId = 2,
+                            Tel = "098765446",
+                            UserName = "ducnp"
+                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.News", b =>

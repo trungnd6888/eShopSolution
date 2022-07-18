@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace eShopSolution.Data.Migrations
 {
-    public partial class Initial : Migration
+    public partial class eShopSolutionDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -261,8 +261,8 @@ namespace eShopSolution.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Code = table.Column<string>(type: "varchar(30)", unicode: false, maxLength: 30, nullable: false),
                     Detail = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Price = table.Column<double>(type: "float", nullable: false, defaultValue: 0.0),
                     ImageUrl = table.Column<string>(type: "varchar(1000)", unicode: false, maxLength: 1000, nullable: true),
@@ -356,6 +356,44 @@ namespace eShopSolution.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Customers",
+                columns: new[] { "Id", "Address", "Birthday", "Email", "Name", "Tel" },
+                values: new object[,]
+                {
+                    { 1, "Hà Nội", new DateTime(1993, 9, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "trungk47s5@gmail.com", "Nguyễn Trung", "0985052368" },
+                    { 2, "Hà Nội", new DateTime(1992, 6, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "tuank47s5@gmail.com", "Nguyễn Tuân", "098121322" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Describe", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Quản trị viên", "admin" },
+                    { 2, "Thành viên", "member" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Address", "CreateDate", "Email", "ImageUrl", "Name", "Password", "RoleId", "Tel", "UserName" },
+                values: new object[] { 1, "Hà Nội", new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3378), "duc@gmail.com", null, "Nguyễn Phúc Đức", "123456", 2, "098765446", "ducnp" });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "Id", "ApprovedId", "Code", "CreateDate", "Detail", "ImageUrl", "Name", "Price", "UserId" },
+                values: new object[] { 1, 1, "DH0001", new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3332), "Automatic", null, "Đồng hồ Rolex", 88000.0, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "Id", "ApprovedId", "Code", "CreateDate", "Detail", "ImageUrl", "Name", "Price", "UserId" },
+                values: new object[] { 2, 1, "DH0002", new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3346), "Automatic", null, "Đồng hồ Patek Phillip", 10000.0, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "Id", "ApprovedId", "Code", "CreateDate", "Detail", "ImageUrl", "Name", "Price", "UserId" },
+                values: new object[] { 3, 1, "DH0003", new DateTime(2022, 7, 18, 16, 21, 30, 200, DateTimeKind.Local).AddTicks(3349), "Automatic", null, "Đồng hồ Hublot", 2000.0, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_News_ApprovedId",

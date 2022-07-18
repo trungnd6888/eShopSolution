@@ -16,8 +16,8 @@ namespace eShopSolution.Data.Configurations
             builder.ToTable("Products");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(x => x.Name).IsUnicode(false).HasMaxLength(30);
-            builder.Property(x => x.Code).IsUnicode(true).HasMaxLength(300);
+            builder.Property(x => x.Name).IsUnicode(true).HasMaxLength(300);
+            builder.Property(x => x.Code).IsUnicode(false).HasMaxLength(30);
             builder.Property(x => x.Detail).IsUnicode(true).HasMaxLength(1000).IsRequired(false);
             builder.Property(x => x.Price).HasDefaultValue(0);
             builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(1000).IsRequired(false);
