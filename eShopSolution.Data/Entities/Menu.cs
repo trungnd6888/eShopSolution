@@ -10,7 +10,7 @@ namespace eShopSolution.Data.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Link { get; set; }
+        public string Url { get; set; }
         public int Order { get; set; }
         public bool IsApproved { get; set; }
         public string Target { get; set; }

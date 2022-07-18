@@ -1,4 +1,5 @@
-﻿using eShopSolution.Data.Entities;
+﻿using eShopSolution.Data.Configurations;
+using eShopSolution.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 using System;
@@ -16,6 +17,29 @@ namespace eShopSolution.Data.EF
          
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductDistributorConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+            modelBuilder.ApplyConfiguration(new FunctionConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderDetailConfiguration());
+            modelBuilder.ApplyConfiguration(new StatusConfiguration());
+            modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+            modelBuilder.ApplyConfiguration(new AdvertiseConfiguration());
+            modelBuilder.ApplyConfiguration(new BannerConfiguration());
+            modelBuilder.ApplyConfiguration(new MenuConfiguration());
+            modelBuilder.ApplyConfiguration(new NewsConfiguration());
+            modelBuilder.ApplyConfiguration(new DistributorConfiguration());
+
+            //base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -30,5 +54,7 @@ namespace eShopSolution.Data.EF
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Status> Status { get; set; }
+        public DbSet<ProductDistributor> ProductDistributors { get; set; }
     }
 }

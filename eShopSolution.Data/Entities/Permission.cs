@@ -8,12 +8,13 @@ namespace eShopSolution.Data.Entities
 {
     public class Permission
     {
-        public int Id { get; set; }
         public int RoleId { get; set; }
         public int FunctionId { get; set; }
         public bool Add { get; set; }
         public bool Update { get; set; }
         public bool Remove { get; set; }
         public bool View { get; set; }
+        public Role Role { get; set; }
+        public Function Function { get; set; }
     }
 }

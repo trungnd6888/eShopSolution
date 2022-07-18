@@ -13,5 +13,6 @@ namespace eShopSolution.Data.Entities
         public string Address { get; set; }
         public string Tel { get; set; }
         public string Email { get; set; }
+        public List<ProductDistributor> ProductDistributors { get; set; }
     }
 }

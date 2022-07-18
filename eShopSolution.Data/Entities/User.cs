@@ -18,5 +18,8 @@ namespace eShopSolution.Data.Entities
         public string ImageUrl { get; set; }
         public DateTime CreateDate { get; set; }
         public int RoleId { get; set; }
+        public List<Product> Products { get; set; }
+        public Role Role { get; set; }
+        public List<News> News { get; set; }
     }
 }
