@@ -1,16 +1,12 @@
 ﻿using eShopSolution.Data.Configurations;
 using eShopSolution.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using eShopSolution.Data.Extensions;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace eShopSolution.Data.EF
 {
-    public class EShopDbContext : DbContext
+    public class EShopDbContext : IdentityDbContext
     {
         public EShopDbContext(DbContextOptions options) : base(options) 
         {
@@ -19,6 +15,7 @@ namespace eShopSolution.Data.EF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Configuration using Fluent API
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
@@ -36,6 +33,9 @@ namespace eShopSolution.Data.EF
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new NewsConfiguration());
             modelBuilder.ApplyConfiguration(new DistributorConfiguration());
+
+            //Seed Data
+            modelBuilder.Seed();
 
             //base.OnModelCreating(modelBuilder);
         }
