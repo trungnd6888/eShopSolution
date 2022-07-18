@@ -19,13 +19,17 @@ namespace eShopSolution.Data.Extensions
                 new Product { Id = 3, Name = "Đồng hồ Hublot", Detail = "Automatic", Code = "DH0003", Price = 2000, CreateDate = DateTime.Now, UserId = 1, ApprovedId = 1 }
             );
 
-            modelBuilder.Entity<User>().HasData(
-                new User { Id = 1, Name = "Nguyễn Phúc Đức", UserName="ducnp", Password = "123456", Address = "Hà Nội", Email = "duc@gmail.com", Tel = "098765446", RoleId = 2, CreateDate = DateTime.Now }
+            modelBuilder.Entity<AppUser>().HasData(
+                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName="ducnp", PasswordHash = "123456",  Email = "duc@gmail.com", PhoneNumber = "098765446" }
             );
 
-            modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, Name = "admin",  Describe = "Quản trị viên" },
-                new Role { Id = 2, Name = "member", Describe = "Thành viên" }
+            modelBuilder.Entity<AppUserRole>().HasData(
+                new AppUserRole { UserId = 1, RoleId = 1 }
+            );
+
+            modelBuilder.Entity<AppRole>().HasData(
+                new AppRole { Id = 1, Name = "admin",  Description = "Quản trị viên" },
+                new AppRole { Id = 2, Name = "member", Description = "Thành viên" }
             );
         }
     }

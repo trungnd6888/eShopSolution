@@ -3,10 +3,11 @@ using eShopSolution.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using eShopSolution.Data.Extensions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace eShopSolution.Data.EF
 {
-    public class EShopDbContext : IdentityDbContext
+    public class EShopDbContext : IdentityDbContext<AppUser, AppRole,int>
     {
         public EShopDbContext(DbContextOptions options) : base(options) 
         {
@@ -17,13 +18,9 @@ namespace eShopSolution.Data.EF
         {
             //Configuration using Fluent API
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new ProductDistributorConfiguration());
             modelBuilder.ApplyConfiguration(new ProductCategoryConfiguration());
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
-            modelBuilder.ApplyConfiguration(new FunctionConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new OrderDetailConfiguration());
             modelBuilder.ApplyConfiguration(new StatusConfiguration());
@@ -33,6 +30,15 @@ namespace eShopSolution.Data.EF
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new NewsConfiguration());
             modelBuilder.ApplyConfiguration(new DistributorConfiguration());
+            modelBuilder.ApplyConfiguration(new AppUserConfiguration());
+            modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
+
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("AppUserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("AppUserLogins").HasKey(x => x.UserId);
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("AppUserTokens").HasKey(x => x.UserId);
+
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("AppRoleClaims");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("AppUserRoles").HasKey(x => new { x.RoleId, x.UserId});
 
             //Seed Data
             modelBuilder.Seed();
@@ -46,14 +52,12 @@ namespace eShopSolution.Data.EF
         public DbSet<Distributor> Distributors { get; set; }
         public DbSet<Advertise> Advertises { get; set; }
         public DbSet<Banner> Banners { get; set; }
-        public DbSet<Function> Functions { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<News> News { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<AppRole> AppRoles { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
-        public DbSet<Role> Roles { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<ProductDistributor> ProductDistributors { get; set; }
     }
