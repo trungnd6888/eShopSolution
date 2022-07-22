@@ -4,6 +4,9 @@ using eShopSolution.Utilities.Contants;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using eShopSolution.Data.Entities;
+using eShopSolution.Application.System.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +14,17 @@ var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString(SystemContants.MainConnectionString);
 builder.Services.AddDbContext<EShopDbContext>(options => options.UseSqlServer(connString));
 
+builder.Services.AddIdentity<AppUser, AppRole>()
+    .AddEntityFrameworkStores<EShopDbContext>()
+    .AddDefaultTokenProviders();
+
 //Declare DI
 builder.Services.AddTransient<IManageProductService, ManageProductService>();
-builder.Services.AddTransient<IStorageService, FileStorageService > ();
-
+builder.Services.AddTransient<IStorageService, FileStorageService>();
+builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
+builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+builder.Services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
