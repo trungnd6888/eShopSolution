@@ -13,7 +13,6 @@ namespace eShopSolution.Data.Entities
         public string Code { get; set; }
         public string Detail { get; set; }
         public double Price { get; set; }
-        public string ImageUrl { get; set; }
         public DateTime CreateDate { get; set; }
         public bool IsApproved { get; set; }
         public int ApprovedId { get; set; }
@@ -24,5 +23,6 @@ namespace eShopSolution.Data.Entities
         public List<ProductDistributor> ProductDistributors { get; set; }
         public List<ProductCategory> ProductCategories { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }
-     }
+        public List<ProductImage> ProductImages { get; set; }
+    }
 }

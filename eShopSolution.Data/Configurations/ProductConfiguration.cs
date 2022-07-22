@@ -20,8 +20,7 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.Code).IsUnicode(false).HasMaxLength(30);
             builder.Property(x => x.Detail).IsUnicode(true).HasMaxLength(1000).IsRequired(false);
             builder.Property(x => x.Price).HasDefaultValue(0);
-            builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(1000).IsRequired(false);
-            builder.Property(x => x.CreateDate);
+            builder.Property(x => x.CreateDate); 
             builder.Property(x => x.IsApproved).HasDefaultValue(false);
             builder.Property(x => x.IsNew).HasDefaultValue(false);
             builder.Property(x => x.IsBestSale).HasDefaultValue(false);

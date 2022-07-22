@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShopSolution.Data.EF;
 
@@ -11,9 +12,10 @@ using eShopSolution.Data.EF;
 namespace eShopSolution.Data.Migrations
 {
     [DbContext(typeof(EShopDbContext))]
-    partial class EShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220719154649_EShopDbContext_AddProductImage")]
+    partial class EShopDbContext_AddProductImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,14 +84,14 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "084a6aa0-5067-4329-afd3-ba2e513f2a7c",
+                            ConcurrencyStamp = "bdc5a8e6-221f-4df0-ab9a-f42580b82d64",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "7a829990-f617-4bd4-a633-c3434b407243",
+                            ConcurrencyStamp = "ecf81b94-f377-47af-bea1-04cf77c0ecb1",
                             Description = "Thành viên",
                             Name = "member"
                         });
@@ -160,7 +162,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4e0551f8-c8c8-4eb9-b5d6-70e2c6ef1398",
+                            ConcurrencyStamp = "87c3d1bf-3e71-40a5-b1a6-971811acffc6",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -234,14 +236,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Đồng hồ nam",
-                            Order = 0
-                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Customer", b =>
@@ -495,6 +489,11 @@ namespace eShopSolution.Data.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(1000)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1000)");
+
                     b.Property<bool>("IsApproved")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -536,7 +535,7 @@ namespace eShopSolution.Data.Migrations
                             Id = 1,
                             ApprovedId = 1,
                             Code = "DH0001",
-                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2022, 7, 19, 22, 46, 48, 1, DateTimeKind.Local).AddTicks(5534),
                             Detail = "Automatic",
                             IsApproved = false,
                             IsBestSale = false,
@@ -550,7 +549,7 @@ namespace eShopSolution.Data.Migrations
                             Id = 2,
                             ApprovedId = 1,
                             Code = "DH0002",
-                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2022, 7, 19, 22, 46, 48, 1, DateTimeKind.Local).AddTicks(5548),
                             Detail = "Automatic",
                             IsApproved = false,
                             IsBestSale = false,
@@ -564,7 +563,7 @@ namespace eShopSolution.Data.Migrations
                             Id = 3,
                             ApprovedId = 1,
                             Code = "DH0003",
-                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreateDate = new DateTime(2022, 7, 19, 22, 46, 48, 1, DateTimeKind.Local).AddTicks(5551),
                             Detail = "Automatic",
                             IsApproved = false,
                             IsBestSale = false,
@@ -588,23 +587,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("ProductCategories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ProductId = 1,
-                            CategoryId = 1
-                        },
-                        new
-                        {
-                            ProductId = 2,
-                            CategoryId = 1
-                        },
-                        new
-                        {
-                            ProductId = 3,
-                            CategoryId = 1
-                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.ProductDistributor", b =>
