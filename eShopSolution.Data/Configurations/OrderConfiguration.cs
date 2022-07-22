@@ -11,7 +11,7 @@ namespace eShopSolution.Data.Configurations
             builder.ToTable("Orders");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(x => x.CreateDate);
+            builder.Property(x => x.CreateDate); 
             builder.HasOne<Status>(x => x.Status).WithMany(s => s.Orders).HasForeignKey(x => x.StatusId);
             builder.HasOne<Customer>(x => x.Customer).WithMany(c => c.Orders).HasForeignKey(x => x.CustomerId);
         }

@@ -32,6 +32,7 @@ namespace eShopSolution.Data.EF
             modelBuilder.ApplyConfiguration(new DistributorConfiguration());
             modelBuilder.ApplyConfiguration(new AppUserConfiguration());
             modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
 
             modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("AppUserClaims");
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("AppUserLogins").HasKey(x => x.UserId);
@@ -60,5 +61,7 @@ namespace eShopSolution.Data.EF
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<ProductDistributor> ProductDistributors { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
     }
 }
