@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace eShopSolution.Application.System.User
 {
@@ -27,13 +28,29 @@ namespace eShopSolution.Application.System.User
             _config = config;
         }
 
-        public async Task<string> Authenticate(LoginRequest request)
+        public async Task<AppUser> GetByUserName(string userName)
+        {
+            return await _userManager.FindByNameAsync(userName);
+        }
+
+        public async Task<Hashtable> Authenticate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.Username);
-            if (user == null) return null;
+            if (user == null) return new Hashtable()
+            {
+                {"error", "Username or password invalid" }
+            };
 
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
-            if (!result.Succeeded) return null;
+            if (result.IsLockedOut) return new Hashtable()
+            {
+                { "error", "Username is locked" }
+            };
+
+            if (!result.Succeeded) return new Hashtable()
+            {
+                { "error", "Username or password invalid" }
+            };
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -53,7 +70,10 @@ namespace eShopSolution.Application.System.User
                 expires: DateTime.Now.AddHours(3),
                 signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new Hashtable()
+            {
+                {"token", new JwtSecurityTokenHandler().WriteToken(token)}
+            };
         }
 
         public async Task<bool> Register(RegisterRequest request)

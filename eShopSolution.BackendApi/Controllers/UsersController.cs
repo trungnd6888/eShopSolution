@@ -1,7 +1,7 @@
 ﻿using eShopSolution.Application.System.User;
+using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.System.Users;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
@@ -19,23 +19,28 @@ namespace eShopSolution.BackendApi.Controllers
 
         [HttpPost("authenticate")]
         [AllowAnonymous]
-        public async Task<IActionResult> Authenticate([FromForm] LoginRequest request)
+        public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var resultToken = await _userService.Authenticate(request);
+            var result = await _userService.Authenticate(request);
+            AppUser userLogin = await _userService.GetByUserName(request.Username);
 
-            if (string.IsNullOrEmpty(resultToken))
+            if (result["token"] == null || userLogin == null)
             {
-                return BadRequest("UserName or password is incorrect./");
+                return Unauthorized(new { error = result["error"] });
             }
 
-            return Ok(new { token = resultToken });
+            return Ok(new
+            {
+                token = result["token"],
+                user = userLogin
+            });
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromForm] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -43,10 +48,12 @@ namespace eShopSolution.BackendApi.Controllers
 
             if (!result)
             {
-                return BadRequest("Register is unsuccessful./");
+                return Unauthorized(new { error = "Username available" });
             }
 
-            return Ok();
+            AppUser userRegister = await _userService.GetByUserName(request.UserName);
+
+            return Ok(new { user = userRegister });
         }
     }
 }
