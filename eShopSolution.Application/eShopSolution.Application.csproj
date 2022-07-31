@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\eShopSolution.Data\eShopSolution.Data.csproj" />
+    <ProjectReference Include="..\eShopSolution.Utilities\eShopSolution.Utilities.csproj" />
+    <ProjectReference Include="..\eShopSolution.ViewModel\eShopSolution.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>
