@@ -17,17 +17,17 @@ namespace eShopSolution.Application.Catalog.Products
         public async Task<PageResult<ProductViewModel>> GetAllByCategoryId(GetPublicProductPagingRequest request)
         {
             var query = from p in _context.Products
-                        join pc in _context.ProductCategories on p.Id equals pc.ProductId 
-                        select new { p, pc};
+                        join pc in _context.ProductCategories on p.Id equals pc.ProductId
+                        select new { p, pc };
 
-            if(request.CategoryId.HasValue && request.CategoryId.Value > 0)
+            if (request.CategoryId.HasValue && request.CategoryId.Value > 0)
             {
                 query = query.Where(x => x.pc.CategoryId == request.CategoryId);
             }
 
             int totalRecord = await query.CountAsync();
 
-            var data = await(query.Skip((request.PageIndex - 1) * request.PageSize)
+            var data = await (query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(x => new ProductViewModel()
                 {
