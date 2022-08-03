@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.ViewModel.System.Users
 {
-    public class LoginRequest
+    public class ResetPasswordRequest
     {
-        public string Username { get; set; }
         public string Password { get; set; }
-        //public bool RememberMe { get; set; }
+        public string ConfirmPassword { get; set; }
+        public string Email { get; set; }
     }
 }

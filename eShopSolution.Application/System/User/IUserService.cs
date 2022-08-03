@@ -16,5 +16,9 @@ namespace eShopSolution.Application.System.User
         Task<Hashtable> Authenticate(LoginRequest request);
 
         Task<bool> Register(RegisterRequest request);
+
+        Task<bool> ForgotPassword(ForgotPasswordRequest request, string url);
+
+        Task<Hashtable> ResetPassword(ResetPasswordRequest request, string token);
     }
 }

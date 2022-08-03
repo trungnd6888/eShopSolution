@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using FluentValidation.AspNetCore;
 using FluentValidation;
 using eShopSolution.ViewModel.System.Users;
+using MailKit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,7 @@ var connString = builder.Configuration.GetConnectionString(SystemContants.MainCo
 builder.Services.AddDbContext<EShopDbContext>(options => options.UseSqlServer(connString));
 
 builder.Services.AddIdentity<AppUser, AppRole>()
-    .AddEntityFrameworkStores<EShopDbContext> ()
+    .AddEntityFrameworkStores<EShopDbContext>()
     .AddDefaultTokenProviders();
 
 //Declare DI
