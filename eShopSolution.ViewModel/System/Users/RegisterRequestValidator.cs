@@ -19,8 +19,7 @@ namespace eShopSolution.ViewModel.System.Users
                 .Matches(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$")
                 .WithMessage("Email format not match");
             RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage("Phone number is required");
-            RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required")
-                .MinimumLength(6).WithMessage("Password is at least 6 characters");
+            RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");
             RuleFor(x => x).Custom((request, context) =>
             {
                 if (string.IsNullOrEmpty(request.ConfirmPassword))

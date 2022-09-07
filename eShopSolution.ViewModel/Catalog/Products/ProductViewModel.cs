@@ -1,4 +1,4 @@
-﻿
+﻿using eShopSolution.Data.Entities;
 
 namespace eShopSolution.ViewModel.Catalog.Products
 {
@@ -12,9 +12,12 @@ namespace eShopSolution.ViewModel.Catalog.Products
         public string ImageUrl { get; set; }
         public DateTime CreateDate { get; set; }
         public bool IsApproved { get; set; }
-        public int ApprovedId { get; set; }
-        public int UserId { get; set; }
+        public int? ApprovedId { get; set; }
+        public int? UserId { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
+        public List<int> Categories { get; set; }
+        public List<int> Distributors { get; set; }
+
     }
 }

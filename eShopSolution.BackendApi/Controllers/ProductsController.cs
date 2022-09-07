@@ -1,5 +1,4 @@
 ﻿using eShopSolution.Application.Catalog.Products;
-using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.Catalog.ProductImages;
 using eShopSolution.ViewModel.Catalog.Products;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +8,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "admin,member")]
     public class ProductsController : ControllerBase
     {
         private readonly IManageProductService _manageProductService;
@@ -21,9 +20,9 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products?PageIndex=1&PageSize=10&Keyword=abc&CategoryIds=1&CategoryIds=2
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] GetManageProductPagingRequest request)
+        public async Task<ActionResult> Get([FromQuery] GetManageProductRequest request)
         {
-            var products = await _manageProductService.GetAllPaging(request);
+            var products = await _manageProductService.GetAll(request);
 
             return Ok(products);
         }
@@ -45,21 +44,27 @@ namespace eShopSolution.BackendApi.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            //Check Code Product
+            var productByCode = await _manageProductService.GetByCode(request.Code);
+            if (productByCode != null)
+            {
+                ModelState.AddModelError("code", "Code Product invalid");
+                return BadRequest(ModelState);
+            }
+
             var productId = await _manageProductService.Create(request);
-            if (productId == 0) return BadRequest();
+            if (productId == 0) return BadRequest("Fail to add product");
 
-            var product = await _manageProductService.GetById(productId);
-
-            return CreatedAtAction(nameof(GetById), new { id = productId }, product);
+            return Ok();
         }
 
-        //http://localhost:port/Products
-        [HttpPut]
-        public async Task<ActionResult> Update([FromForm] ProductUpdateRequest request)
+        //http://localhost:port/Products/1
+        [HttpPatch("{productId}")]
+        public async Task<ActionResult> Update(int productId, [FromBody] ProductUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var affectedResult = await _manageProductService.Update(request);
+            var affectedResult = await _manageProductService.Update(productId, request);
             if (affectedResult == 0) return BadRequest();
 
             return Ok();
@@ -86,7 +91,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("{productId}/images")]
-        public async Task<ActionResult> CreateImage(int productId, ProductImageCreateRequest request)
+        public async Task<ActionResult> CreateImage(int productId, [FromForm] ProductImageCreateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -96,11 +101,11 @@ namespace eShopSolution.BackendApi.Controllers
 
             var image = await _manageProductService.GetImageById(imageId);
 
-            return CreatedAtAction(nameof(GetImageById), new { Id = imageId }, image);
+            return Ok(image);
         }
 
-        [HttpPut("{productId}/images/{imageId}")]
-        public async Task<ActionResult> UpdateImage(int imageId, [FromForm] ProductImageUpdateRequest request)
+        [HttpPatch("{productId}/images/{imageId}")]
+        public async Task<ActionResult> UpdateImage(int imageId, [FromBody] ProductImageUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

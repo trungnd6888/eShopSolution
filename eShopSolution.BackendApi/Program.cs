@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using eShopSolution.Data.EF;
 using eShopSolution.Utilities.Contants;
 using eShopSolution.Application.Catalog.Products;
+using eShopSolution.Application.Catalog.Categories;
+using eShopSolution.Application.Catalog.Distributors;
 using eShopSolution.Application.Common;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
@@ -20,11 +22,13 @@ var connString = builder.Configuration.GetConnectionString(SystemContants.MainCo
 builder.Services.AddDbContext<EShopDbContext>(options => options.UseSqlServer(connString));
 
 builder.Services.AddIdentity<AppUser, AppRole>()
-    .AddEntityFrameworkStores<EShopDbContext> ()
+    .AddEntityFrameworkStores<EShopDbContext>()
     .AddDefaultTokenProviders();
 
 //Declare DI
 builder.Services.AddTransient<IManageProductService, ManageProductService>();
+builder.Services.AddTransient<IManageDistributorService, ManageDistributorService>();
+builder.Services.AddTransient<IManageCategoryService, ManageCategoryService>();
 builder.Services.AddTransient<IStorageService, FileStorageService>();
 builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
@@ -125,7 +129,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

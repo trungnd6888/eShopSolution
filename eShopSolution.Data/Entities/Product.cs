@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace eShopSolution.Data.Entities
 {
     public class Product
@@ -15,8 +10,8 @@ namespace eShopSolution.Data.Entities
         public double Price { get; set; }
         public DateTime CreateDate { get; set; }
         public bool IsApproved { get; set; }
-        public int ApprovedId { get; set; }
-        public int UserId { get; set; }
+        public int? ApprovedId { get; set; }
+        public int? UserId { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
         public AppUser AppUser { get; set; }

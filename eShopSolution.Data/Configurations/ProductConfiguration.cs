@@ -1,11 +1,6 @@
 ﻿using eShopSolution.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace eShopSolution.Data.Configurations
 {
@@ -20,10 +15,12 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.Code).IsUnicode(false).HasMaxLength(30);
             builder.Property(x => x.Detail).IsUnicode(true).HasMaxLength(1000).IsRequired(false);
             builder.Property(x => x.Price).HasDefaultValue(0);
-            builder.Property(x => x.CreateDate); 
+            builder.Property(x => x.CreateDate);
             builder.Property(x => x.IsApproved).HasDefaultValue(false);
             builder.Property(x => x.IsNew).HasDefaultValue(false);
             builder.Property(x => x.IsBestSale).HasDefaultValue(false);
+            builder.Property(x => x.UserId).IsRequired(false);
+            builder.Property(x => x.ApprovedId).IsRequired(false);
         }
     }
 }
