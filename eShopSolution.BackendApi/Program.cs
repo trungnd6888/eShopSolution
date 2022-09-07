@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using eShopSolution.Data.EF;
 using eShopSolution.Utilities.Contants;
 using eShopSolution.Application.Catalog.Products;
+using eShopSolution.Application.Catalog.Categories;
+using eShopSolution.Application.Catalog.Distributors;
 using eShopSolution.Application.Common;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +14,6 @@ using Microsoft.IdentityModel.Tokens;
 using FluentValidation.AspNetCore;
 using FluentValidation;
 using eShopSolution.ViewModel.System.Users;
-using MailKit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ builder.Services.AddIdentity<AppUser, AppRole>()
 
 //Declare DI
 builder.Services.AddTransient<IManageProductService, ManageProductService>();
+builder.Services.AddTransient<IManageDistributorService, ManageDistributorService>();
+builder.Services.AddTransient<IManageCategoryService, ManageCategoryService>();
 builder.Services.AddTransient<IStorageService, FileStorageService>();
 builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
@@ -126,7 +129,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapControllers();

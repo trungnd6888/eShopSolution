@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using eShopSolution.Data.Entities;
+﻿using eShopSolution.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eShopSolution.Data.Configurations

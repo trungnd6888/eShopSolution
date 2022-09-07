@@ -82,14 +82,14 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "084a6aa0-5067-4329-afd3-ba2e513f2a7c",
+                            ConcurrencyStamp = "4388691c-cca7-49c1-ba4e-c1ff9b0d82ab",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "7a829990-f617-4bd4-a633-c3434b407243",
+                            ConcurrencyStamp = "bee980bf-714b-476c-a184-0d93aa944c4b",
                             Description = "Thành viên",
                             Name = "member"
                         });
@@ -105,6 +105,11 @@ namespace eShopSolution.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("AvatarImage")
+                        .HasMaxLength(300)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(300)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("nvarchar(max)");
@@ -160,7 +165,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4e0551f8-c8c8-4eb9-b5d6-70e2c6ef1398",
+                            ConcurrencyStamp = "4f1296d2-6bef-4012-abef-a69c322de97d",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -478,7 +483,7 @@ namespace eShopSolution.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("ApprovedId")
+                    b.Property<int?>("ApprovedId")
                         .HasColumnType("int");
 
                     b.Property<string>("Code")
@@ -521,7 +526,7 @@ namespace eShopSolution.Data.Migrations
                         .HasColumnType("float")
                         .HasDefaultValue(0.0);
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -851,9 +856,7 @@ namespace eShopSolution.Data.Migrations
                 {
                     b.HasOne("eShopSolution.Data.Entities.AppUser", "AppUser")
                         .WithMany("Products")
-                        .HasForeignKey("ApprovedId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ApprovedId");
 
                     b.Navigation("AppUser");
                 });
