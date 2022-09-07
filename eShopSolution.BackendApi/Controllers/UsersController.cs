@@ -25,18 +25,13 @@ namespace eShopSolution.BackendApi.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var result = await _userService.Authenticate(request);
-            AppUser userLogin = await _userService.GetByUserName(request.Username);
 
-            if (result["token"] == null || userLogin == null)
+            if (result["token"] == null)
             {
                 return Unauthorized(new { error = result["error"] });
             }
 
-            return Ok(new
-            {
-                token = result["token"],
-                user = userLogin
-            });
+            return Ok(result["token"]);
         }
 
         [HttpPost("register")]
@@ -63,14 +58,14 @@ namespace eShopSolution.BackendApi.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            string url = "http://127.0.0.1:5173/ResetPassword?Email=" + request.Email + "&Token=";
+            string url = "http://127.0.0.1:5173/ForgotPassword/Reset?Email=" + request.Email + "&Token=";
             bool result = await _userService.ForgotPassword(request, url);
             if (!result) return BadRequest(new { error = "Email không hợp lệ" });
 
             return Ok("Forgot password success");
         }
 
-        [HttpPost("resetPassword")]
+        [HttpPost("forgotPassword/reset")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, [FromQuery] string token)
         {
