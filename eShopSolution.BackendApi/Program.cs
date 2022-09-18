@@ -1,19 +1,26 @@
-using Microsoft.EntityFrameworkCore;
-using eShopSolution.Data.EF;
-using eShopSolution.Utilities.Contants;
-using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Distributors;
+using eShopSolution.Application.Catalog.ProductCategories;
+using eShopSolution.Application.Catalog.ProductDistributors;
+using eShopSolution.Application.Catalog.ProductImages;
+using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Identity;
+using eShopSolution.Application.System.Auth;
+using eShopSolution.Application.System.RoleClaims;
+using eShopSolution.Application.System.Roles;
+using eShopSolution.Application.System.UserRoles;
+using eShopSolution.Application.System.Users;
+using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
-using eShopSolution.Application.System.User;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using FluentValidation.AspNetCore;
+using eShopSolution.Utilities.Contants;
+using eShopSolution.ViewModel.System.Auth;
 using FluentValidation;
-using eShopSolution.ViewModel.System.Users;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,23 +28,31 @@ var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString(SystemContants.MainConnectionString);
 builder.Services.AddDbContext<EShopDbContext>(options => options.UseSqlServer(connString));
 
-builder.Services.AddIdentity<AppUser, AppRole>()
-    .AddEntityFrameworkStores<EShopDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddDefaultIdentity<AppUser>()
+                .AddRoles<AppRole>()
+                .AddEntityFrameworkStores<EShopDbContext>()
+                .AddDefaultTokenProviders();
 
 //Declare DI
-builder.Services.AddTransient<IManageProductService, ManageProductService>();
-builder.Services.AddTransient<IManageDistributorService, ManageDistributorService>();
-builder.Services.AddTransient<IManageCategoryService, ManageCategoryService>();
+builder.Services.AddTransient<IRoleClaimsService, RoleClaimsService>();
+builder.Services.AddTransient<IUserRolesService, UserRolesService>();
+builder.Services.AddTransient<IProductService, ProductService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IProductCategoriesService, ProductCategoriesService>();
+builder.Services.AddTransient<IProductDistributorsService, ProductDistributorsService>();
+builder.Services.AddTransient<IProductImagesService, ProductImagesService>();
+builder.Services.AddTransient<IDistributorService, DistributorService>();
+builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IStorageService, FileStorageService>();
 builder.Services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
 builder.Services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
-builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 
 builder.Services.AddControllers()
-    .AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+                .AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -83,25 +98,33 @@ string signingKey = builder.Configuration.GetValue<string>("Tokens:Key");
 byte[] signingKeyBytes = System.Text.Encoding.UTF8.GetBytes(signingKey);
 
 builder.Services.AddAuthentication(opt =>
+                {
+                    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = issuer,
+                        ValidateAudience = true,
+                        ValidAudience = issuer,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = System.TimeSpan.Zero,
+                        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                    };
+                });
+
+builder.Services.AddAuthorization(options =>
 {
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidIssuer = issuer,
-        ValidateAudience = true,
-        ValidAudience = issuer,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ClockSkew = System.TimeSpan.Zero,
-        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
-    };
+    options.AddPolicy("ProductView", policy => policy.RequireClaim("product", "product.view"));
+    options.AddPolicy("ProductCreate", policy => policy.RequireClaim("product", "product.create"));
+    options.AddPolicy("ProductUpdate", policy => policy.RequireClaim("product", "product.update"));
+    options.AddPolicy("ProductRemove", policy => policy.RequireClaim("product", "product.remove"));
 });
 
 var app = builder.Build();
@@ -119,10 +142,9 @@ if (app.Environment.IsDevelopment())
 //Show UseCors with CorsPolicyBuilder
 app.UseCors(builder =>
 {
-    builder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader();
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
 });
 
 app.UseHttpsRedirection();
