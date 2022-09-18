@@ -24,21 +24,17 @@ namespace eShopSolution.Data.Extensions
             );
 
             modelBuilder.Entity<ProductCategory>().HasData(
-                new ProductCategory { CategoryId = 1,  ProductId = 1 },
+                new ProductCategory { CategoryId = 1, ProductId = 1 },
                 new ProductCategory { CategoryId = 1, ProductId = 2 },
                 new ProductCategory { CategoryId = 1, ProductId = 3 }
             );
 
             modelBuilder.Entity<AppUser>().HasData(
-                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName="ducnp", PasswordHash = "123456",  Email = "duc@gmail.com", PhoneNumber = "098765446" }
-            );
-
-            modelBuilder.Entity<AppUserRole>().HasData(
-                new AppUserRole { UserId = 1, RoleId = 1 }
+                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName = "ducnp", PasswordHash = "123456", Email = "duc@gmail.com", PhoneNumber = "098765446" }
             );
 
             modelBuilder.Entity<AppRole>().HasData(
-                new AppRole { Id = 1, Name = "admin",  Description = "Quản trị viên" },
+                new AppRole { Id = 1, Name = "admin", Description = "Quản trị viên" },
                 new AppRole { Id = 2, Name = "member", Description = "Thành viên" }
             );
         }

@@ -1,26 +1,25 @@
 ﻿using eShopSolution.Application.Catalog.Distributors;
-using Microsoft.AspNetCore.Mvc;
-using eShopSolution.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin,member")]
+    [Authorize]
     public class DistributorsController : ControllerBase
     {
-        private readonly IManageDistributorService _manageDistributorService;
+        private readonly IDistributorService _distributorService;
 
-        public DistributorsController(IManageDistributorService manageDistributorService)
+        public DistributorsController(IDistributorService distributorService)
         {
-            _manageDistributorService = manageDistributorService;
+            _distributorService = distributorService;
         }
 
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var distributors = await _manageDistributorService.GetAll();
+            var distributors = await _distributorService.GetAll();
 
             return Ok(distributors);
         }
