@@ -82,14 +82,14 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "4388691c-cca7-49c1-ba4e-c1ff9b0d82ab",
+                            ConcurrencyStamp = "69c3308a-d96d-42d0-a195-4699c1840a00",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "bee980bf-714b-476c-a184-0d93aa944c4b",
+                            ConcurrencyStamp = "879cd642-402b-482e-95ad-fd9c8105cd87",
                             Description = "Thành viên",
                             Name = "member"
                         });
@@ -165,7 +165,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4f1296d2-6bef-4012-abef-a69c322de97d",
+                            ConcurrencyStamp = "69b270d8-847d-485c-b23f-96c2e2c5916e",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -756,15 +756,9 @@ namespace eShopSolution.Data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("RoleId", "UserId");
 
                     b.ToTable("AppUserRoles", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<int>");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -787,20 +781,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("AppUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.AppUserRole", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<int>");
-
-                    b.HasDiscriminator().HasValue("AppUserRole");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            UserId = 1
-                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.News", b =>

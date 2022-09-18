@@ -1,17 +1,17 @@
 ﻿using eShopSolution.Data.Configurations;
 using eShopSolution.Data.Entities;
-using Microsoft.EntityFrameworkCore;
 using eShopSolution.Data.Extensions;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace eShopSolution.Data.EF
 {
-    public class EShopDbContext : IdentityDbContext<AppUser, AppRole,int>
+    public class EShopDbContext : IdentityDbContext<AppUser, AppRole, int>
     {
-        public EShopDbContext(DbContextOptions options) : base(options) 
+        public EShopDbContext(DbContextOptions options) : base(options)
         {
-         
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,7 +39,7 @@ namespace eShopSolution.Data.EF
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("AppUserTokens").HasKey(x => x.UserId);
 
             modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("AppRoleClaims");
-            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("AppUserRoles").HasKey(x => new { x.RoleId, x.UserId});
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("AppUserRoles").HasKey(x => new { x.RoleId, x.UserId });
 
             //Seed Data
             modelBuilder.Seed();

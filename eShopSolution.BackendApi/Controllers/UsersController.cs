@@ -1,81 +1,187 @@
-﻿using eShopSolution.Application.System.User;
+﻿using eShopSolution.Application.Common;
+using eShopSolution.Application.System.UserRoles;
+using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
+using eShopSolution.Utilities.Exceptions;
+using eShopSolution.ViewModel.Common;
 using eShopSolution.ViewModel.System.Users;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections;
+using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
+        private readonly IStorageService _storageService;
         private readonly IUserService _userService;
+        private readonly IUserRolesService _userRolesService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IStorageService storageService, IUserRolesService userRolesService)
         {
             _userService = userService;
+            _storageService = storageService;
+            _userRolesService = userRolesService;
         }
 
-        [HttpPost("authenticate")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
+        [HttpGet]
+        public async Task<ActionResult> Get([FromQuery] UserGetRequest request)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var query = _userService.GetAll();
 
-            var result = await _userService.Authenticate(request);
-
-            if (result["token"] == null)
+            if (!string.IsNullOrEmpty(request.Keyword))
             {
-                return Unauthorized(new { error = result["error"] });
+                query = query.Where(x => x.UserName.Contains(request.Keyword.Trim())
+                                  || x.Email.Contains(request.Keyword.Trim()));
             }
 
-            return Ok(result["token"]);
-        }
+            //paging
+            int totalRecord = await query.CountAsync();
 
-        [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var data = await query.ToListAsync();
 
-            var result = await _userService.Register(request);
-
-            if (!result)
+            //set avatarImage
+            foreach (var item in data)
             {
-                return Unauthorized(new { error = "Username available" });
+                if (item.AvatarImage != null)
+                {
+                    item.AvatarImage = _storageService.GetFileUrl(item.AvatarImage);
+                }
             }
 
-            AppUser userRegister = await _userService.GetByUserName(request.UserName);
+            var users = new PageResult<AppUser>()
+            {
+                Data = data,
+                TotalRecord = totalRecord
+            };
 
-            return Ok(new { user = userRegister });
+            return Ok(users);
         }
 
-        [HttpPost("forgotPassword")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        [HttpGet("{userId}")]
+        public async Task<ActionResult> GetById(int userId)
+        {
+            var user = await _userService.GetById(userId);
+            if (user == null) return BadRequest("Cannot find product");
+
+            //set image
+            if (user.AvatarImage != null)
+            {
+                user.AvatarImage = _storageService.GetFileUrl(user.AvatarImage);
+            }
+
+            //set userRoles
+            var userRoles = await _userRolesService.GetByUserId(userId);
+
+            List<int> roles = new List<int>();
+            foreach (var item in userRoles) roles.Add(item.RoleId);
+
+            var userVM = new UserViewModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
+                AvatarImage = user.AvatarImage,
+                UserRoles = roles,
+            };
+
+            return Ok(userVM);
+        }
+
+        [HttpPatch("{userId}")]
+        public async Task<ActionResult> Update(int userId, [FromForm] UserUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            string url = "http://127.0.0.1:5173/ForgotPassword/Reset?Email=" + request.Email + "&Token=";
-            bool result = await _userService.ForgotPassword(request, url);
-            if (!result) return BadRequest(new { error = "Email không hợp lệ" });
+            //Check Code Product
+            var userByUserName = await _userService.GetByUserName(request.UserName);
 
-            return Ok("Forgot password success");
-        }
+            if (userByUserName != null && userByUserName.Id != userId)
+            {
+                ModelState.AddModelError("userName", "UserName invalid");
+                return BadRequest(ModelState);
+            }
 
-        [HttpPost("forgotPassword/reset")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, [FromQuery] string token)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            //get old user
+            AppUser? user = await _userService.GetById(userId);
+            if (user == null) throw new EShopException($"Can not find a product by id: {userId}");
 
-            var result = await _userService.ResetPassword(request, token);
+            /*update new user*/
+            user.FullName = request.FullName;
+            user.UserName = request.UserName;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Email = request.Email;
 
-            if (result["result"] == null) return BadRequest(new { error = result["error"] });
+            //Remove foreign key Old
+            var userRolesRemove = await _userRolesService.GetByUserId(userId);
+
+            foreach (var item in userRolesRemove)
+            {
+                _userRolesService.RemoveNotSave(item);
+            }
+
+            //Add foreign key New
+            if (request.Roles != null && request.Roles.Count > 0)
+            {
+                foreach (var item in request.Roles)
+                {
+                    await _userRolesService.Add(new IdentityUserRole<int>()
+                    {
+                        UserId = user.Id,
+                        RoleId = item,
+                    });
+                }
+            }
+
+            //Remove image old
+            if (string.IsNullOrEmpty(request.InputHidden))
+            {
+                if (user.AvatarImage != null)
+                {
+                    await _storageService.DeleteFileAsync(user.AvatarImage);
+                }
+
+                user.AvatarImage = null;
+            }
+
+            //Save image
+            if (request.AvatarImage != null && request.AvatarImage.Count > 0)
+            {
+                //Add new
+                user.AvatarImage = await this.SaveFile(request.AvatarImage[0]);
+            }
+
+            var result = await _userService.Update(user);
+            if (result == 0) return BadRequest();
 
             return Ok();
+        }
+
+        [HttpDelete("{userId}")]
+        public async Task<ActionResult> Remove(int userId)
+        {
+            var user = await _userService.GetById(userId);
+            if (user == null) return BadRequest($"Can not find a user by id: {userId}");
+
+            var result = await _userService.Remove(user);
+            if (result == 0) return BadRequest("Fail to remove user");
+
+            return Ok("Remove user success");
+        }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            return fileName;
         }
     }
 }

@@ -1,26 +1,25 @@
 ﻿using eShopSolution.Application.Catalog.Categories;
-using Microsoft.AspNetCore.Mvc;
-using eShopSolution.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin,member")]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
-        private readonly IManageCategoryService _manageCategoryService;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(IManageCategoryService manageCategoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _manageCategoryService = manageCategoryService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var categories = await _manageCategoryService.GetAll();
+            var categories = await _categoryService.GetAll();
 
             return Ok(categories);
         }
