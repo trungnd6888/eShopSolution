@@ -8,5 +8,7 @@ namespace eShopSolution.Data.Entities
         public string? AvatarImage { get; set; }
         public List<Product> Products { get; set; }
         public List<News> News { get; set; }
+        public List<AppUserRole> AppUserRoles { get; set; }
+        public List<History> Histories { get; set; }
     }
 }

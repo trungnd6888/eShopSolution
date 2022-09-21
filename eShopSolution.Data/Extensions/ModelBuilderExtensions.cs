@@ -1,5 +1,6 @@
 ﻿using eShopSolution.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using Action = eShopSolution.Data.Entities.Action;
 
 namespace eShopSolution.Data.Extensions
 {
@@ -36,6 +37,23 @@ namespace eShopSolution.Data.Extensions
             modelBuilder.Entity<AppRole>().HasData(
                 new AppRole { Id = 1, Name = "admin", Description = "Quản trị viên" },
                 new AppRole { Id = 2, Name = "member", Description = "Thành viên" }
+            );
+
+            modelBuilder.Entity<Action>().HasData(
+                new Action { Id = 1, Name = "Thêm" },
+                new Action { Id = 2, Name = "Sửa" },
+                new Action { Id = 3, Name = "Xóa" }
+            );
+
+            modelBuilder.Entity<Form>().HasData(
+            new Form { Id = 1, Name = "Sản phẩm" },
+            new Form { Id = 2, Name = "Tin tức" },
+            new Form { Id = 3, Name = "Nhà phân phối" },
+            new Form { Id = 4, Name = "Bộ sưu tập" },
+            new Form { Id = 5, Name = "Khách hàng" },
+            new Form { Id = 6, Name = "Người dùng" },
+            new Form { Id = 7, Name = "Vai trò" },
+            new Form { Id = 8, Name = "Đơn hàng" }
             );
         }
     }

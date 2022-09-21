@@ -1,7 +1,7 @@
 ﻿using eShopSolution.Application.System.RoleClaims;
+using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.System.RoleClaims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +9,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "PermissionView")]
     public class RoleClaimsController : ControllerBase
     {
         private readonly IRoleClaimsService _roleClaimsService;
@@ -34,9 +34,10 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromForm] RoleClaimCreateRequest request)
+        [Authorize(Policy = "PermissionCreate")]
+        public async Task<ActionResult> Create([FromBody] RoleClaimCreateRequest request)
         {
-            IdentityRoleClaim<int> roleClaim = new IdentityRoleClaim<int>();
+            AppRoleClaim roleClaim = new AppRoleClaim();
             roleClaim.RoleId = request.RoleId;
             roleClaim.ClaimType = request.ClaimType;
             roleClaim.ClaimValue = request.ClaimValue;
@@ -47,7 +48,8 @@ namespace eShopSolution.BackendApi.Controllers
             return BadRequest("Fail to roleClaim add");
         }
 
-        [HttpDelete("roleClaimId")]
+        [HttpDelete("{roleClaimId}")]
+        [Authorize(Policy = "PermissionRemove")]
         public async Task<ActionResult> Remove(int roleClaimId)
         {
             var roleClaim = await _roleClaimsService.GetById(roleClaimId);
@@ -60,28 +62,5 @@ namespace eShopSolution.BackendApi.Controllers
 
             return BadRequest("Fail to remove role claim");
         }
-
-        //[HttpDelete("roleId")]
-        //public async Task<ActionResult> RemoveByRoleId(int roleId)
-        //{
-        //    var query = _roleClaimsService.Get();
-
-        //    if (roleId > 0)
-        //    {
-        //        query = query.Where(x => x.RoleId == roleId);
-        //    }
-
-        //    var data = await query.ToListAsync();
-
-        //    if (data != null && data.Count > 0)
-        //    {
-        //        foreach (var item in data)
-        //        {
-        //            await _roleClaimsService.Remove(item);
-        //        }
-        //    }
-
-        //    return Ok();
-        //}
     }
 }

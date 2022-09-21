@@ -11,7 +11,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "PermissionView")]
     public class RolesController : ControllerBase
     {
         private readonly IRoleService _roleService;
@@ -55,6 +55,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "PermissionCreate")]
         public async Task<ActionResult> Create([FromBody] RoleCreateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -63,6 +64,7 @@ namespace eShopSolution.BackendApi.Controllers
             var role = new AppRole()
             {
                 Name = request.Name,
+                NormalizedName = request.Name.ToLower(),
                 Description = request.Description,
             };
 
@@ -74,6 +76,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Roles/1
         [HttpPatch("{roleId}")]
+        [Authorize(Policy = "PermissionUpdate")]
         public async Task<ActionResult> Update(int roleId, [FromBody] RoleUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -94,6 +97,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Roles/1
         [HttpDelete("{roleId}")]
+        [Authorize(Policy = "PermissionRemove")]
         public async Task<ActionResult> Remove(int roleId)
         {
             var role = await _roleService.GetById(roleId);

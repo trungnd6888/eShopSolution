@@ -6,7 +6,6 @@ using eShopSolution.Utilities.Exceptions;
 using eShopSolution.ViewModel.Common;
 using eShopSolution.ViewModel.System.Users;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
@@ -15,7 +14,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "UserView")]
     public class UsersController : ControllerBase
     {
         private readonly IStorageService _storageService;
@@ -96,6 +95,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPatch("{userId}")]
+        [Authorize(Policy = "UserUpdate")]
         public async Task<ActionResult> Update(int userId, [FromForm] UserUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -132,7 +132,7 @@ namespace eShopSolution.BackendApi.Controllers
             {
                 foreach (var item in request.Roles)
                 {
-                    await _userRolesService.Add(new IdentityUserRole<int>()
+                    await _userRolesService.Add(new AppUserRole()
                     {
                         UserId = user.Id,
                         RoleId = item,
@@ -165,6 +165,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpDelete("{userId}")]
+        [Authorize(Policy = "UserRemove")]
         public async Task<ActionResult> Remove(int userId)
         {
             var user = await _userService.GetById(userId);
