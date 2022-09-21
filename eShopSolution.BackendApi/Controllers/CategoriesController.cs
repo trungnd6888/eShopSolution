@@ -6,7 +6,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "CategoryView")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;

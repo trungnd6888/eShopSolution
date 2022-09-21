@@ -6,7 +6,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "DistributorView")]
     public class DistributorsController : ControllerBase
     {
         private readonly IDistributorService _distributorService;

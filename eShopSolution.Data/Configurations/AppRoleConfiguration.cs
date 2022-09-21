@@ -10,6 +10,8 @@ namespace eShopSolution.Data.Configurations
         {
             builder.ToTable("AppRoles");
             builder.Property(x => x.Description).IsUnicode(true).HasMaxLength(300);
+            builder.HasMany<AppUserRole>(x => x.AppUserRoles).WithOne(p => p.AppRole).HasForeignKey(p => p.RoleId);
+            builder.HasMany<AppRoleClaim>(x => x.AppRoleClaims).WithOne(p => p.AppRole).HasForeignKey(p => p.RoleId);
         }
     }
 }

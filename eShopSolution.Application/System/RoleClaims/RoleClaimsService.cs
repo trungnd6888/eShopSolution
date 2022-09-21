@@ -1,5 +1,5 @@
 ﻿using eShopSolution.Data.EF;
-using Microsoft.AspNetCore.Identity;
+using eShopSolution.Data.Entities;
 
 namespace eShopSolution.Application.System.RoleClaims
 {
@@ -11,24 +11,23 @@ namespace eShopSolution.Application.System.RoleClaims
             _context = context;
         }
 
-        public IQueryable<IdentityRoleClaim<int>> Get()
+        public IQueryable<AppRoleClaim> Get()
         {
-            return _context.RoleClaims;
+            return _context.AppRoleClaims;
         }
-        public async Task<int> Create(IdentityRoleClaim<int> roleClaim)
+        public async Task<int> Create(AppRoleClaim roleClaim)
         {
-            _context.Add(roleClaim);
+            _context.AppRoleClaims.Add(roleClaim);
             return await _context.SaveChangesAsync();
         }
-        public async Task<int> Remove(IdentityRoleClaim<int> roleClaim)
+        public async Task<int> Remove(AppRoleClaim roleClaim)
         {
-            _context.Remove(roleClaim);
+            _context.AppRoleClaims.Remove(roleClaim);
             return await _context.SaveChangesAsync();
         }
-
-        public async Task<IdentityRoleClaim<int>?> GetById(int roleClaimId)
+        public async Task<AppRoleClaim?> GetById(int roleClaimId)
         {
-            return await _context.RoleClaims.FindAsync(roleClaimId);
+            return await _context.AppRoleClaims.FindAsync(roleClaimId);
         }
     }
 }

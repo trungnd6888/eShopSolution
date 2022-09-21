@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShopSolution.Data.EF;
 
@@ -11,9 +12,10 @@ using eShopSolution.Data.EF;
 namespace eShopSolution.Data.Migrations
 {
     [DbContext(typeof(EShopDbContext))]
-    partial class EShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919234555_UpdateAppRoleAndAppUser")]
+    partial class UpdateAppRoleAndAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,41 +23,6 @@ namespace eShopSolution.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.Action", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Actions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Thêm"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Sửa"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Xóa"
-                        });
-                });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Advertise", b =>
                 {
@@ -117,41 +84,17 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "fa098b9a-6a21-4458-a122-4d28e8492146",
+                            ConcurrencyStamp = "bdc44e8a-1c4e-4f28-931a-285ce18a7f00",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "0b2acdf4-c643-45c9-bec3-7fbf48189c38",
+                            ConcurrencyStamp = "d89c4575-8604-4622-8986-709ff0e28dbe",
                             Description = "Thành viên",
                             Name = "member"
                         });
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.AppRoleClaim", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AppRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.AppUser", b =>
@@ -224,7 +167,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ffe8761c-f9a8-447f-9a0e-2d9febdd3aec",
+                            ConcurrencyStamp = "08176632-efb0-4815-a7fa-e9ab3d703a9b",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -235,21 +178,6 @@ namespace eShopSolution.Data.Migrations
                             TwoFactorEnabled = false,
                             UserName = "ducnp"
                         });
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.AppUserRole", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RoleId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AppUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Banner", b =>
@@ -412,98 +340,6 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Distributors", (string)null);
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.Form", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Forms", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Sản phẩm"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Tin tức"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Nhà phân phối"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Bộ sưu tập"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Khách hàng"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Người dùng"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Vai trò"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Đơn hàng"
-                        });
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.History", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int?>("ActionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("FormId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ActionId");
-
-                    b.HasIndex("FormId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Histories", (string)null);
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Menu", b =>
@@ -848,6 +684,28 @@ namespace eShopSolution.Data.Migrations
                     b.ToTable("Status", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppRoleClaims", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -892,6 +750,25 @@ namespace eShopSolution.Data.Migrations
                     b.ToTable("AppUserLogins", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("RoleId", "UserId");
+
+                    b.ToTable("AppUserRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<int>");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.Property<int>("UserId")
@@ -914,55 +791,13 @@ namespace eShopSolution.Data.Migrations
                     b.ToTable("AppUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("eShopSolution.Data.Entities.AppRoleClaim", b =>
-                {
-                    b.HasOne("eShopSolution.Data.Entities.AppRole", "AppRole")
-                        .WithMany("AppRoleClaims")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppRole");
-                });
-
             modelBuilder.Entity("eShopSolution.Data.Entities.AppUserRole", b =>
                 {
-                    b.HasOne("eShopSolution.Data.Entities.AppRole", "AppRole")
-                        .WithMany("AppUserRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<int>");
 
-                    b.HasOne("eShopSolution.Data.Entities.AppUser", "AppUser")
-                        .WithMany("AppUserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasIndex("UserId");
 
-                    b.Navigation("AppRole");
-
-                    b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.History", b =>
-                {
-                    b.HasOne("eShopSolution.Data.Entities.Action", "Action")
-                        .WithMany("Histories")
-                        .HasForeignKey("ActionId");
-
-                    b.HasOne("eShopSolution.Data.Entities.Form", "Form")
-                        .WithMany("Histories")
-                        .HasForeignKey("FormId");
-
-                    b.HasOne("eShopSolution.Data.Entities.AppUser", "AppUser")
-                        .WithMany("Histories")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Action");
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Form");
+                    b.HasDiscriminator().HasValue("AppUserRole");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.News", b =>
@@ -1072,23 +907,33 @@ namespace eShopSolution.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("eShopSolution.Data.Entities.Action", b =>
+            modelBuilder.Entity("eShopSolution.Data.Entities.AppUserRole", b =>
                 {
-                    b.Navigation("Histories");
+                    b.HasOne("eShopSolution.Data.Entities.AppRole", "AppRole")
+                        .WithMany("AppUserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("eShopSolution.Data.Entities.AppUser", "AppUser")
+                        .WithMany("AppUserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppRole");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.AppRole", b =>
                 {
-                    b.Navigation("AppRoleClaims");
-
                     b.Navigation("AppUserRoles");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.AppUser", b =>
                 {
                     b.Navigation("AppUserRoles");
-
-                    b.Navigation("Histories");
 
                     b.Navigation("News");
 
@@ -1108,11 +953,6 @@ namespace eShopSolution.Data.Migrations
             modelBuilder.Entity("eShopSolution.Data.Entities.Distributor", b =>
                 {
                     b.Navigation("ProductDistributors");
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.Form", b =>
-                {
-                    b.Navigation("Histories");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Order", b =>

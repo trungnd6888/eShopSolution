@@ -125,6 +125,41 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ProductCreate", policy => policy.RequireClaim("product", "product.create"));
     options.AddPolicy("ProductUpdate", policy => policy.RequireClaim("product", "product.update"));
     options.AddPolicy("ProductRemove", policy => policy.RequireClaim("product", "product.remove"));
+
+    options.AddPolicy("CategoryView", policy => policy.RequireClaim("category", "category.view"));
+    options.AddPolicy("CategoryCreate", policy => policy.RequireClaim("category", "category.create"));
+    options.AddPolicy("CategoryUpdate", policy => policy.RequireClaim("category", "category.update"));
+    options.AddPolicy("CategoryRemove", policy => policy.RequireClaim("category", "category.remove"));
+
+    options.AddPolicy("DistributorView", policy => policy.RequireClaim("distributor", "distributor.view"));
+    options.AddPolicy("DistributorCreate", policy => policy.RequireClaim("distributor", "distributor.create"));
+    options.AddPolicy("DistributorUpdate", policy => policy.RequireClaim("distributor", "distributor.update"));
+    options.AddPolicy("DistributorRemove", policy => policy.RequireClaim("distributor", "distributor.remove"));
+
+    options.AddPolicy("NewsView", policy => policy.RequireClaim("news", "news.view"));
+    options.AddPolicy("NewsCreate", policy => policy.RequireClaim("news", "news.create"));
+    options.AddPolicy("NewsUpdate", policy => policy.RequireClaim("news", "news.update"));
+    options.AddPolicy("NewsRemove", policy => policy.RequireClaim("news", "news.remove"));
+
+    options.AddPolicy("UserView", policy => policy.RequireClaim("user", "user.view"));
+    options.AddPolicy("UserCreate", policy => policy.RequireClaim("user", "user.create"));
+    options.AddPolicy("UserUpdate", policy => policy.RequireClaim("user", "user.update"));
+    options.AddPolicy("UserRemove", policy => policy.RequireClaim("user", "user.remove"));
+
+    options.AddPolicy("CustomerView", policy => policy.RequireClaim("customer", "customer.view"));
+    options.AddPolicy("CustomerCreate", policy => policy.RequireClaim("customer", "customer.create"));
+    options.AddPolicy("CustomerUpdate", policy => policy.RequireClaim("customer", "customer.update"));
+    options.AddPolicy("CustomerRemove", policy => policy.RequireClaim("customer", "customer.remove"));
+
+    options.AddPolicy("OrderView", policy => policy.RequireClaim("order", "order.view"));
+    options.AddPolicy("OrderCreate", policy => policy.RequireClaim("order", "order.create"));
+    options.AddPolicy("OrderUpdate", policy => policy.RequireClaim("order", "order.update"));
+    options.AddPolicy("OrderRemove", policy => policy.RequireClaim("order", "order.remove"));
+
+    options.AddPolicy("PermissionView", policy => policy.RequireClaim("permission", "permission.view"));
+    options.AddPolicy("PermissionCreate", policy => policy.RequireClaim("permission", "permission.create"));
+    options.AddPolicy("PermissionUpdate", policy => policy.RequireClaim("permission", "permission.update"));
+    options.AddPolicy("PermissionRemove", policy => policy.RequireClaim("permission", "permission.remove"));
 });
 
 var app = builder.Build();
