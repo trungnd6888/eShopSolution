@@ -8,6 +8,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -18,7 +19,6 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("authenticate")]
-        [AllowAnonymous]
         public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -34,7 +34,6 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("register")]
-        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -52,7 +51,6 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("forgotPassword")]
-        [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -65,7 +63,6 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("forgotPassword/reset")]
-        [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request, [FromQuery] string token)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

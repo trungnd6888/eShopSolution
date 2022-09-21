@@ -4,10 +4,11 @@ using eShopSolution.Data.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Action = eShopSolution.Data.Entities.Action;
 
 namespace eShopSolution.Data.EF
 {
-    public class EShopDbContext : IdentityDbContext<AppUser, AppRole, int>
+    public class EShopDbContext : IdentityDbContext<AppUser, AppRole, int, IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>, AppRoleClaim, IdentityUserToken<int>>
     {
         public EShopDbContext(DbContextOptions options) : base(options)
         {
@@ -32,14 +33,16 @@ namespace eShopSolution.Data.EF
             modelBuilder.ApplyConfiguration(new DistributorConfiguration());
             modelBuilder.ApplyConfiguration(new AppUserConfiguration());
             modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new AppUserRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new AppRoleClaimConfiguration());
             modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
+            modelBuilder.ApplyConfiguration(new HistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new FormConfiguration());
+            modelBuilder.ApplyConfiguration(new ActionConfiguration());
 
             modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("AppUserClaims");
             modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("AppUserLogins").HasKey(x => x.UserId);
             modelBuilder.Entity<IdentityUserToken<int>>().ToTable("AppUserTokens").HasKey(x => x.UserId);
-
-            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("AppRoleClaims");
-            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("AppUserRoles").HasKey(x => new { x.RoleId, x.UserId });
 
             //Seed Data
             modelBuilder.Seed();
@@ -58,10 +61,15 @@ namespace eShopSolution.Data.EF
         public DbSet<Order> Orders { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<AppRole> AppRoles { get; set; }
+        public DbSet<AppUserRole> AppUserRoles { get; set; }
+        public DbSet<AppRoleClaim> AppRoleClaims { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<ProductDistributor> ProductDistributors { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<History> Histories { get; set; }
+        public DbSet<Action> Actions { get; set; }
+        public DbSet<Form> Forms { get; set; }
     }
 }
