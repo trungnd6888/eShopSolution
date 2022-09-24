@@ -18,10 +18,10 @@ namespace eShopSolution.BackendApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IStorageService _storageService;
-        private readonly IUserService _userService;
+        private readonly IUsersService _userService;
         private readonly IUserRolesService _userRolesService;
 
-        public UsersController(IUserService userService, IStorageService storageService, IUserRolesService userRolesService)
+        public UsersController(IUsersService userService, IStorageService storageService, IUserRolesService userRolesService)
         {
             _userService = userService;
             _storageService = storageService;

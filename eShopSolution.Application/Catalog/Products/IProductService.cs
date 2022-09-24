@@ -8,6 +8,7 @@ namespace eShopSolution.Application.Catalog.Products
         Task<int> Create(Product product);
 
         Task<int> Update(Product product);
+
         Task<int> Remove(Product product);
 
         Task<int> UpdatePrice(int productId, double newPrice);
