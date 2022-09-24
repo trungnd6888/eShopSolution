@@ -14,9 +14,9 @@ namespace eShopSolution.BackendApi.Controllers
     [Authorize(Policy = "PermissionView")]
     public class RolesController : ControllerBase
     {
-        private readonly IRoleService _roleService;
+        private readonly IRolesService _roleService;
 
-        public RolesController(IRoleService roleService)
+        public RolesController(IRolesService roleService)
         {
             _roleService = roleService;
         }

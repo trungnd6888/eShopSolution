@@ -3,6 +3,8 @@ using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
+using eShopSolution.Application.System.Histories;
+using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
 using eShopSolution.Utilities.Exceptions;
 using eShopSolution.ViewModel.Catalog.ProductImages;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
+using static eShopSolution.Utilities.Contants.SystemContants;
 
 namespace eShopSolution.BackendApi.Controllers
 {
@@ -25,15 +28,20 @@ namespace eShopSolution.BackendApi.Controllers
         private readonly IProductImagesService _productImagesService;
         private readonly IProductCategoriesService _productCategoriesService;
         private readonly IProductDistributorsService _productDistributorsService;
+        private readonly IHistoriesService _historiesService;
+        private readonly IUsersService _usersService;
 
         public ProductsController(IProductService productService, IProductCategoriesService productCategoriesService,
-            IProductDistributorsService productDistributorsService, IProductImagesService productImagesService, IStorageService storageService)
+            IProductDistributorsService productDistributorsService, IProductImagesService productImagesService,
+            IStorageService storageService, IHistoriesService historiesService, IUsersService usersService)
         {
             _storageService = storageService;
             _productService = productService;
             _productImagesService = productImagesService;
             _productCategoriesService = productCategoriesService;
             _productDistributorsService = productDistributorsService;
+            _historiesService = historiesService;
+            _usersService = usersService;
         }
 
         //http://localhost:port/Products?PageIndex=1&PageSize=10&Keyword=abc&CategoryIds=1&CategoryIds=2
@@ -41,10 +49,12 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> Get([FromQuery] ProductGetRequest request)
         {
             var query = from p in _productService.GetAll()
+                        join u in _usersService.GetAll() on p.UserId equals u.Id
+                        join ua in _usersService.GetAll() on p.ApprovedId equals ua.Id
                         join pc in _productCategoriesService.GetAll() on p.Id equals pc.ProductId
                         into table
                         from item in table.DefaultIfEmpty()
-                        select new { p, item };
+                        select new { p, u, ua, item };
 
             if (!string.IsNullOrEmpty(request.Keyword))
             {
@@ -72,8 +82,10 @@ namespace eShopSolution.BackendApi.Controllers
                 IsNew = grp.Select(x => x.p.IsNew).FirstOrDefault(),
                 Price = grp.Select(x => x.p.Price).FirstOrDefault(),
                 UserId = grp.Select(x => x.p.UserId).FirstOrDefault(),
+                UserName = grp.Select(x => x.u.UserName).FirstOrDefault(),
                 ApprovedId = grp.Select(x => x.p.ApprovedId).FirstOrDefault(),
-            });
+                ApprovedName = grp.Select(x => x.ua.UserName).FirstOrDefault(),
+            }); ;
 
             //paging
             int totalRecord = await queryGroupBy.CountAsync();
@@ -91,7 +103,9 @@ namespace eShopSolution.BackendApi.Controllers
                 IsNew = x.IsNew,
                 Price = x.Price,
                 UserId = x.UserId,
+                UserName = x.UserName,
                 ApprovedId = x.ApprovedId,
+                ApprovedName = x.ApprovedName,
             }).ToListAsync();
 
             //Set Images for data
@@ -226,135 +240,27 @@ namespace eShopSolution.BackendApi.Controllers
             }
 
             //Save image
-            if (request.ThumbnailImages0 != null && request.ThumbnailImages0.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages0.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages0[i]),
-                              SortOrder = 0,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages1 != null && request.ThumbnailImages1.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages1.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages1[i]),
-                              SortOrder = 1,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages2 != null && request.ThumbnailImages2.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages2.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages2[i]),
-                              SortOrder = 2,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages3 != null && request.ThumbnailImages3.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages3.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages3[i]),
-                              SortOrder = 3,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages4 != null && request.ThumbnailImages4.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages4.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages4[i]),
-                              SortOrder = 4,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages5 != null && request.ThumbnailImages5.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages5.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages5[i]),
-                              SortOrder = 5,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages6 != null && request.ThumbnailImages6.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages6.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages6[i]),
-                              SortOrder = 6,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages7 != null && request.ThumbnailImages7.Count > 0)
-            {
-                for (int i = 0; i < request.ThumbnailImages7.Count; i++)
-                {
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages7[i]),
-                              SortOrder = 7,
-                          });
-                }
-            }
+            await SaveImageOnAdd(request.ThumbnailImages0, product, (int)SortOrderNumber.ZERO);
+            await SaveImageOnAdd(request.ThumbnailImages1, product, (int)SortOrderNumber.FIRST);
+            await SaveImageOnAdd(request.ThumbnailImages2, product, (int)SortOrderNumber.SECOND);
+            await SaveImageOnAdd(request.ThumbnailImages3, product, (int)SortOrderNumber.THIRD);
+            await SaveImageOnAdd(request.ThumbnailImages4, product, (int)SortOrderNumber.FOURTH);
+            await SaveImageOnAdd(request.ThumbnailImages5, product, (int)SortOrderNumber.FIFTH);
+            await SaveImageOnAdd(request.ThumbnailImages6, product, (int)SortOrderNumber.SIXTH);
+            await SaveImageOnAdd(request.ThumbnailImages7, product, (int)SortOrderNumber.SEVENTH);
 
             await _productService.SaveChange();
+
+            //add history
+            History history = new History()
+            {
+                Time = DateTime.Now,
+                ActionId = (int)ActionId.CREATE,
+                FormId = (int)FormId.PRODUCT,
+                UserId = request.UserId,
+            };
+
+            await _historiesService.Create(history);
 
             return Ok("Success to add product");
         }
@@ -427,285 +333,24 @@ namespace eShopSolution.BackendApi.Controllers
             }
 
             //Remove image old
-            if (string.IsNullOrEmpty(request.inputHidden0))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 0).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden1))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 1).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden2))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 2).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden3))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 3).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden4))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 4).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden5))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 5).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden6))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 6).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
-
-            if (string.IsNullOrEmpty(request.inputHidden7))
-            {
-                var removeList = product.ProductImages.Where(x => x.SortOrder == 7).ToList();
-
-                foreach (var item in removeList)
-                {
-                    await _storageService.DeleteFileAsync(item.ImageUrl);
-                    product.ProductImages.Remove(item);
-                }
-            }
+            await RemoveImageOnUpdate(request.inputHidden0, product, (int)SortOrderNumber.ZERO);
+            await RemoveImageOnUpdate(request.inputHidden1, product, (int)SortOrderNumber.FIRST);
+            await RemoveImageOnUpdate(request.inputHidden2, product, (int)SortOrderNumber.SECOND);
+            await RemoveImageOnUpdate(request.inputHidden3, product, (int)SortOrderNumber.THIRD);
+            await RemoveImageOnUpdate(request.inputHidden4, product, (int)SortOrderNumber.FOURTH);
+            await RemoveImageOnUpdate(request.inputHidden5, product, (int)SortOrderNumber.FIFTH);
+            await RemoveImageOnUpdate(request.inputHidden6, product, (int)SortOrderNumber.SIXTH);
+            await RemoveImageOnUpdate(request.inputHidden7, product, (int)SortOrderNumber.SEVENTH);
 
             //Save image
-            if (request.ThumbnailImages0 != null && request.ThumbnailImages0.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 0).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages0.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages0[i]),
-                              SortOrder = 0,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages1 != null && request.ThumbnailImages1.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 1).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages1.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages1[i]),
-                              SortOrder = 1,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages2 != null && request.ThumbnailImages2.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 2).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages2.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages2[i]),
-                              SortOrder = 2,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages3 != null && request.ThumbnailImages3.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 3).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages3.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages3[i]),
-                              SortOrder = 3,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages4 != null && request.ThumbnailImages4.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 4).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-                for (int i = 0; i < request.ThumbnailImages4.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages4[i]),
-                              SortOrder = 4,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages5 != null && request.ThumbnailImages5.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 5).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages5.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages5[i]),
-                              SortOrder = 5,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages6 != null && request.ThumbnailImages6.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 0).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages6.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages6[i]),
-                              SortOrder = 6,
-                          });
-                }
-            }
-
-            if (request.ThumbnailImages7 != null && request.ThumbnailImages7.Count > 0)
-            {
-                //Remove image old before add 
-                product.ProductImages.Where(x => x.SortOrder == 7).ToList().ForEach(async y =>
-                {
-                    await _storageService.DeleteFileAsync(y.ImageUrl);
-                    product.ProductImages.Remove(y);
-                });
-
-                for (int i = 0; i < request.ThumbnailImages7.Count; i++)
-                {
-                    //Add new
-                    product.ProductImages.Add(
-                          new ProductImage()
-                          {
-                              Caption = "thumbnail",
-                              CreateDate = DateTime.Now,
-                              ProductId = product.Id,
-                              ImageUrl = await this.SaveFile(request.ThumbnailImages7[i]),
-                              SortOrder = 7,
-                          });
-                }
-            }
+            SaveImageOnUpdate(request.ThumbnailImages0, product, (int)SortOrderNumber.ZERO);
+            await SaveImageOnUpdate(request.ThumbnailImages1, product, (int)SortOrderNumber.FIRST);
+            await SaveImageOnUpdate(request.ThumbnailImages2, product, (int)SortOrderNumber.SECOND);
+            await SaveImageOnUpdate(request.ThumbnailImages3, product, (int)SortOrderNumber.THIRD);
+            await SaveImageOnUpdate(request.ThumbnailImages4, product, (int)SortOrderNumber.FOURTH);
+            await SaveImageOnUpdate(request.ThumbnailImages5, product, (int)SortOrderNumber.FIFTH);
+            await SaveImageOnUpdate(request.ThumbnailImages6, product, (int)SortOrderNumber.SIXTH);
+            await SaveImageOnUpdate(request.ThumbnailImages7, product, (int)SortOrderNumber.SEVENTH);
 
             var result = await _productService.Update(product);
             if (result == 0) return BadRequest();
@@ -796,6 +441,66 @@ namespace eShopSolution.BackendApi.Controllers
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
             return fileName;
+        }
+
+        private async Task SaveImageOnAdd(List<IFormFile>? formfiles, Product product, int order)
+        {
+            if (formfiles != null && formfiles.Count > 0)
+            {
+                for (int i = 0; i < formfiles.Count; i++)
+                {
+                    product.ProductImages.Add(
+                          new ProductImage()
+                          {
+                              Caption = "thumbnail",
+                              CreateDate = DateTime.Now,
+                              ProductId = product.Id,
+                              ImageUrl = await this.SaveFile(formfiles[i]),
+                              SortOrder = order,
+                          });
+                }
+            }
+        }
+
+        private async Task RemoveImageOnUpdate(string? inputHidden, Product product, int order)
+        {
+            if (string.IsNullOrEmpty(inputHidden))
+            {
+                var removeList = product.ProductImages.Where(x => x.SortOrder == order).ToList();
+
+                foreach (var item in removeList)
+                {
+                    await _storageService.DeleteFileAsync(item.ImageUrl);
+                    product.ProductImages.Remove(item);
+                }
+            }
+        }
+
+        private async Task SaveImageOnUpdate(List<IFormFile>? formFiles, Product product, int order)
+        {
+            if (formFiles != null && formFiles.Count > 0)
+            {
+                //Remove image old before add 
+                product.ProductImages.Where(x => x.SortOrder == order).ToList().ForEach(async y =>
+                {
+                    await _storageService.DeleteFileAsync(y.ImageUrl);
+                    product.ProductImages.Remove(y);
+                });
+
+                for (int i = 0; i < formFiles.Count; i++)
+                {
+                    //Add new
+                    product.ProductImages.Add(
+                          new ProductImage()
+                          {
+                              Caption = "thumbnail",
+                              CreateDate = DateTime.Now,
+                              ProductId = product.Id,
+                              ImageUrl = await this.SaveFile(formFiles[i]),
+                              SortOrder = order,
+                          });
+                }
+            }
         }
     }
 }

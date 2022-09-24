@@ -5,7 +5,10 @@ using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
+using eShopSolution.Application.System.Actions;
 using eShopSolution.Application.System.Auth;
+using eShopSolution.Application.System.Forms;
+using eShopSolution.Application.System.Histories;
 using eShopSolution.Application.System.RoleClaims;
 using eShopSolution.Application.System.Roles;
 using eShopSolution.Application.System.UserRoles;
@@ -34,11 +37,14 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<IFormsService, FormsService>();
+builder.Services.AddTransient<IActionsService, ActionsService>();
+builder.Services.AddTransient<IHistoriesService, HistoriesService>();
 builder.Services.AddTransient<IRoleClaimsService, RoleClaimsService>();
 builder.Services.AddTransient<IUserRolesService, UserRolesService>();
 builder.Services.AddTransient<IProductService, ProductService>();
-builder.Services.AddTransient<IRoleService, RoleService>();
-builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IRolesService, RolesService>();
+builder.Services.AddTransient<IUsersService, UsersService>();
 builder.Services.AddTransient<IProductCategoriesService, ProductCategoriesService>();
 builder.Services.AddTransient<IProductDistributorsService, ProductDistributorsService>();
 builder.Services.AddTransient<IProductImagesService, ProductImagesService>();

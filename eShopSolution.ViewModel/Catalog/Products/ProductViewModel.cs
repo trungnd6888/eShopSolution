@@ -13,6 +13,8 @@ namespace eShopSolution.ViewModel.Catalog.Products
         public bool IsApproved { get; set; }
         public int? ApprovedId { get; set; }
         public int? UserId { get; set; }
+        public string UserName { get; set; }
+        public string ApprovedName { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
         public List<int> Categories { get; set; }
