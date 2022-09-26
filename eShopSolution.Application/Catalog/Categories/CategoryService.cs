@@ -1,6 +1,5 @@
 ﻿using eShopSolution.Data.EF;
-using eShopSolution.ViewModel.Catalog.Categories;
-using Microsoft.EntityFrameworkCore;
+using eShopSolution.Data.Entities;
 
 namespace eShopSolution.Application.Catalog.Categories
 {
@@ -13,15 +12,34 @@ namespace eShopSolution.Application.Catalog.Categories
             _context = context;
         }
 
-        public async Task<List<CategoryViewModel>> GetAll()
+        public IQueryable<Category> GetAll()
         {
-            var data = await _context.Categories.Select(x => new CategoryViewModel()
-            {
-                Id = x.Id,
-                Name = x.Name
-            }).ToListAsync();
+            return _context.Categories;
+        }
 
-            return data;
+        public async Task<Category> GetById(int categoryId)
+        {
+            return await _context.Categories.FindAsync(categoryId);
+        }
+
+        public async Task<int> Create(Category category)
+        {
+            _context.Categories.Add(category);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> Remove(Category category)
+        {
+            _context.Categories.Remove(category);
+
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> Update(Category category)
+        {
+            _context.Categories.Update(category);
+
+            return await _context.SaveChangesAsync();
         }
     }
 }

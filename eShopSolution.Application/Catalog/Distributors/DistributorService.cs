@@ -1,6 +1,5 @@
 ﻿using eShopSolution.Data.EF;
-using eShopSolution.ViewModel.Catalog.Distributors;
-using Microsoft.EntityFrameworkCore;
+using eShopSolution.Data.Entities;
 
 namespace eShopSolution.Application.Catalog.Distributors
 {
@@ -13,15 +12,35 @@ namespace eShopSolution.Application.Catalog.Distributors
             _context = context;
         }
 
-        public async Task<List<DistributorViewModel>> GetAll()
+        public IQueryable<Distributor> GetAll()
         {
-            var data = await _context.Distributors.Select(x => new DistributorViewModel()
-            {
-                Id = x.Id,
-                Name = x.Name
-            }).ToListAsync();
+            return _context.Distributors;
+        }
 
-            return data;
+        public async Task<Distributor> GetById(int distributorId)
+        {
+            return await _context.Distributors.FindAsync(distributorId);
+        }
+
+        public async Task<int> Create(Distributor distributor)
+        {
+            _context.Distributors.Add(distributor);
+
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> Update(Distributor distributor)
+        {
+            _context.Distributors.Update(distributor);
+
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> Remove(Distributor distributor)
+        {
+            _context.Distributors.Remove(distributor);
+
+            return await _context.SaveChangesAsync();
         }
     }
 }
