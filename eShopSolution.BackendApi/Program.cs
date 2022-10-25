@@ -1,4 +1,5 @@
 using eShopSolution.Application.Catalog.Categories;
+using eShopSolution.Application.Catalog.Customers;
 using eShopSolution.Application.Catalog.Distributors;
 using eShopSolution.Application.Catalog.ProductCategories;
 using eShopSolution.Application.Catalog.ProductDistributors;
@@ -37,6 +38,7 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IFormsService, FormsService>();
 builder.Services.AddTransient<IActionsService, ActionsService>();
 builder.Services.AddTransient<IHistoriesService, HistoriesService>();
