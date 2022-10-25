@@ -20,7 +20,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "ProductView")]
+
     public class ProductsController : ControllerBase
     {
         private readonly IStorageService _storageService;
@@ -44,8 +44,161 @@ namespace eShopSolution.BackendApi.Controllers
             _usersService = usersService;
         }
 
+        [HttpGet("/api/public/[controller]")]
+        public async Task<ActionResult> GetPublic([FromQuery] ProductGetRequest request)
+        {
+            var query = from p in _productService.GetAll()
+                        join u in _usersService.GetAll() on p.UserId equals u.Id
+                        join ua in _usersService.GetAll() on p.ApprovedId equals ua.Id
+                        join pc in _productCategoriesService.GetAll() on p.Id equals pc.ProductId
+                        into table
+                        from item in table.DefaultIfEmpty()
+                        select new { p, u, ua, item };
+
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(x =>
+                    x.p.Name.Contains(request.Keyword.Trim())
+                    || x.p.Code.Contains(request.Keyword.Trim())
+                    || x.p.Detail.Contains(request.Keyword.Trim())
+                );
+            }
+
+            if (request.CategoryIds?.Length > 0)
+            {
+                query = query.Where(x => request.CategoryIds.Contains(x.item.CategoryId));
+            }
+
+            var queryGroupBy = query.GroupBy(x => x.p.Id).Select(grp => new
+            {
+                Id = grp.Key,
+                Name = grp.Select(x => x.p.Name).FirstOrDefault(),
+                Code = grp.Select(x => x.p.Code).FirstOrDefault(),
+                CreateDate = grp.Select(x => x.p.CreateDate).FirstOrDefault(),
+                Detail = grp.Select(x => x.p.Detail).FirstOrDefault(),
+                IsApproved = grp.Select(x => x.p.IsApproved).FirstOrDefault(),
+                IsBestSale = grp.Select(x => x.p.IsBestSale).FirstOrDefault(),
+                IsNew = grp.Select(x => x.p.IsNew).FirstOrDefault(),
+                Price = grp.Select(x => x.p.Price).FirstOrDefault(),
+                UserId = grp.Select(x => x.p.UserId).FirstOrDefault(),
+                UserName = grp.Select(x => x.u.UserName).FirstOrDefault(),
+                ApprovedId = grp.Select(x => x.p.ApprovedId).FirstOrDefault(),
+                ApprovedName = grp.Select(x => x.ua.UserName).FirstOrDefault(),
+            }); ;
+
+            //paging
+            int totalRecord = await queryGroupBy.CountAsync();
+
+            //var data = await queryGroupBy.OrderByDescending(x => x.CreateDate).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
+            var data = await queryGroupBy.Select(x => new ProductViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Code = x.Code,
+                CreateDate = x.CreateDate,
+                Detail = x.Detail,
+                IsApproved = x.IsApproved,
+                IsBestSale = x.IsBestSale,
+                IsNew = x.IsNew,
+                Price = x.Price,
+                UserId = x.UserId,
+                UserName = x.UserName,
+                ApprovedId = x.ApprovedId,
+                ApprovedName = x.ApprovedName,
+            }).ToListAsync();
+
+            //Set categories, distributors, Images for data
+            foreach (var item in data)
+            {
+                //categories
+                var productCategories = await _productCategoriesService.GetByProductId(item.Id);
+
+                List<int> categories = new List<int>();
+                foreach (var i in productCategories) categories.Add(i.CategoryId);
+
+                item.Categories = categories;
+
+                //distributors
+                var productDistributors = await _productDistributorsService.GetByProductId(item.Id);
+
+                List<int> distributors = new List<int>();
+                foreach (var i in productDistributors) distributors.Add(i.DistributorId);
+
+                item.Distributors = distributors;
+
+                //images
+                item.Images = _productImagesService.GetByProductIdNoAsync(item.Id)
+                    .Select(x => new ProductImageViewModel()
+                    {
+                        Id = x.Id,
+                        Caption = x.Caption,
+                        CreateDate = x.CreateDate,
+                        ImageUrl = _storageService.GetFileUrl(x.ImageUrl),
+                        ProductId = x.ProductId,
+                        SortOrder = x.SortOrder,
+                    }).ToList();
+            }
+
+            var products = new PageResult<ProductViewModel>()
+            {
+                Data = data,
+                TotalRecord = totalRecord
+            };
+
+            return Ok(products);
+        }
+
+        [HttpGet("/api/public/[controller]/{productId}")]
+        public async Task<ActionResult> GetByIdPublic(int productId)
+        {
+            var product = await _productService.GetById(productId);
+            if (product == null) return BadRequest("Cannot find product");
+
+            var productCategories = await _productCategoriesService.GetByProductId(productId);
+            var productDistributors = await _productDistributorsService.GetByProductId(productId);
+            var productImages = await _productImagesService.GetByProductId(productId);
+
+            List<int> categories = new List<int>();
+            foreach (var item in productCategories) categories.Add(item.CategoryId);
+
+            List<int> distributors = new List<int>();
+            foreach (var item in productDistributors) distributors.Add(item.DistributorId);
+
+            List<ProductImageViewModel> images = new List<ProductImageViewModel>();
+            foreach (var item in productImages) images.Add(new ProductImageViewModel()
+            {
+                Id = item.Id,
+                ProductId = item.Id,
+                ImageUrl = _storageService.GetFileUrl(item.ImageUrl),
+                Caption = item.Caption,
+                CreateDate = item.CreateDate,
+                SortOrder = item.SortOrder,
+            });
+
+            var productVM = new ProductViewModel()
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Code = product.Code,
+                Detail = product.Detail,
+                CreateDate = product.CreateDate,
+                ApprovedId = product.ApprovedId,
+                IsApproved = product.IsApproved,
+                UserId = product.UserId,
+                Price = product.Price,
+                IsBestSale = product.IsBestSale,
+                IsNew = product.IsNew,
+                Categories = categories,
+                Distributors = distributors,
+                Images = images,
+            };
+
+            return Ok(productVM);
+        }
+
         //http://localhost:port/Products?PageIndex=1&PageSize=10&Keyword=abc&CategoryIds=1&CategoryIds=2
         [HttpGet]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> Get([FromQuery] ProductGetRequest request)
         {
             var query = from p in _productService.GetAll()
@@ -134,6 +287,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products/1
         [HttpGet("{productId}")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> GetById(int productId)
         {
             var product = await _productService.GetById(productId);
@@ -183,6 +337,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products
         [HttpPost]
+        [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductCreate")]
         public async Task<ActionResult> Create([FromForm] ProductCreateRequest request)
         {
@@ -267,7 +422,9 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products/1
         [HttpPatch("{productId}")]
+        [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductUpdate")]
+
         public async Task<ActionResult> Update(int productId, [FromForm] ProductUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -360,6 +517,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products/1
         [HttpDelete("{productId}")]
+        [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductRemove")]
         public async Task<ActionResult> Remove(int productId)
         {
@@ -385,6 +543,7 @@ namespace eShopSolution.BackendApi.Controllers
 
         //http://localhost:port/Products/1/5000
         [HttpPatch("{productId}/{newPrice}")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> UpdatePrice(int productId, double newPrice)
         {
             var affectedResult = await _productService.UpdatePrice(productId, newPrice);
@@ -394,6 +553,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost("{productId}/images")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> CreateImage(int productId, [FromForm] ProductImageCreateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -408,6 +568,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPatch("{productId}/images/{imageId}")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> UpdateImage(int imageId, [FromBody] ProductImageUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -419,6 +580,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpDelete("{productId}/images/{imageId}")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> RemoveImage(int imageId)
         {
             var affectedResult = await _productService.RemoveImage(imageId);
@@ -428,6 +590,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpGet("{productId}/images/{imageId}")]
+        [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> GetImageById(int imageId)
         {
             var image = await _productService.GetImageById(imageId);
