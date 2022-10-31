@@ -12,9 +12,11 @@ namespace eShopSolution.Data.Entities
         public bool IsApproved { get; set; }
         public int? ApprovedId { get; set; }
         public int? UserId { get; set; }
+        public int? BrandId { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
         public AppUser AppUser { get; set; }
+        public Brand Brand { get; set; }
         public List<ProductDistributor> ProductDistributors { get; set; }
         public List<ProductCategory> ProductCategories { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }

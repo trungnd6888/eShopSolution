@@ -8,6 +8,8 @@ namespace eShopSolution.Application.Catalog.Categories
 
         Task<Category> GetById(int categoryId);
 
+        Category GetByIdNoAsync(int categoryId);
+
         Task<int> Create(Category category);
 
         Task<int> Update(Category category);

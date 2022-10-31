@@ -1,4 +1,6 @@
-﻿using eShopSolution.Application.Catalog.ProductCategories;
+﻿using eShopSolution.Application.Catalog.Brands;
+using eShopSolution.Application.Catalog.Categories;
+using eShopSolution.Application.Catalog.ProductCategories;
 using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
 using eShopSolution.Application.Catalog.Products;
@@ -7,6 +9,7 @@ using eShopSolution.Application.System.Histories;
 using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
 using eShopSolution.Utilities.Exceptions;
+using eShopSolution.ViewModel.Catalog.Categories;
 using eShopSolution.ViewModel.Catalog.ProductImages;
 using eShopSolution.ViewModel.Catalog.Products;
 using eShopSolution.ViewModel.Common;
@@ -20,7 +23,6 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class ProductsController : ControllerBase
     {
         private readonly IStorageService _storageService;
@@ -30,10 +32,12 @@ namespace eShopSolution.BackendApi.Controllers
         private readonly IProductDistributorsService _productDistributorsService;
         private readonly IHistoriesService _historiesService;
         private readonly IUsersService _usersService;
+        private readonly IBrandService _brandService;
+        private readonly ICategoryService _categoryService;
 
         public ProductsController(IProductService productService, IProductCategoriesService productCategoriesService,
             IProductDistributorsService productDistributorsService, IProductImagesService productImagesService,
-            IStorageService storageService, IHistoriesService historiesService, IUsersService usersService)
+            IStorageService storageService, IHistoriesService historiesService, IUsersService usersService, IBrandService brandService, ICategoryService categoryService)
         {
             _storageService = storageService;
             _productService = productService;
@@ -42,6 +46,8 @@ namespace eShopSolution.BackendApi.Controllers
             _productDistributorsService = productDistributorsService;
             _historiesService = historiesService;
             _usersService = usersService;
+            _brandService = brandService;
+            _categoryService = categoryService;
         }
 
         [HttpGet("/api/public/[controller]")]
@@ -49,11 +55,12 @@ namespace eShopSolution.BackendApi.Controllers
         {
             var query = from p in _productService.GetAll()
                         join u in _usersService.GetAll() on p.UserId equals u.Id
+                        join b in _brandService.GetAll() on p.BrandId equals b.Id
                         join ua in _usersService.GetAll() on p.ApprovedId equals ua.Id
                         join pc in _productCategoriesService.GetAll() on p.Id equals pc.ProductId
                         into table
                         from item in table.DefaultIfEmpty()
-                        select new { p, u, ua, item };
+                        select new { p, u, b, ua, item };
 
             if (!string.IsNullOrEmpty(request.Keyword))
             {
@@ -81,10 +88,12 @@ namespace eShopSolution.BackendApi.Controllers
                 IsNew = grp.Select(x => x.p.IsNew).FirstOrDefault(),
                 Price = grp.Select(x => x.p.Price).FirstOrDefault(),
                 UserId = grp.Select(x => x.p.UserId).FirstOrDefault(),
+                BrandId = grp.Select(x => x.p.BrandId).FirstOrDefault(),
                 UserName = grp.Select(x => x.u.UserName).FirstOrDefault(),
+                BrandName = grp.Select(x => x.b.Name).FirstOrDefault(),
                 ApprovedId = grp.Select(x => x.p.ApprovedId).FirstOrDefault(),
                 ApprovedName = grp.Select(x => x.ua.UserName).FirstOrDefault(),
-            }); ;
+            });
 
             //paging
             int totalRecord = await queryGroupBy.CountAsync();
@@ -102,41 +111,48 @@ namespace eShopSolution.BackendApi.Controllers
                 IsNew = x.IsNew,
                 Price = x.Price,
                 UserId = x.UserId,
+                BrandId = x.BrandId,
                 UserName = x.UserName,
+                BrandName = x.BrandName,
                 ApprovedId = x.ApprovedId,
                 ApprovedName = x.ApprovedName,
-            }).ToListAsync();
+            }).Where(x => x.IsApproved == true).ToListAsync();
 
-            //Set categories, distributors, Images for data
+            //Set categories, brands, distributors, Images for data
             foreach (var item in data)
             {
                 //categories
                 var productCategories = await _productCategoriesService.GetByProductId(item.Id);
 
-                List<int> categories = new List<int>();
-                foreach (var i in productCategories) categories.Add(i.CategoryId);
-
-                item.Categories = categories;
+                item.Categories = productCategories.Count > 0
+                ? productCategories.Select(x => new CategoryViewModel()
+                {
+                    Id = x.CategoryId,
+                    Name = _categoryService.GetByIdNoAsync(x.CategoryId).Name,
+                }).ToList()
+                : new List<CategoryViewModel>();
 
                 //distributors
                 var productDistributors = await _productDistributorsService.GetByProductId(item.Id);
 
-                List<int> distributors = new List<int>();
-                foreach (var i in productDistributors) distributors.Add(i.DistributorId);
-
-                item.Distributors = distributors;
+                item.Distributors = productDistributors.Count > 0
+                ? productDistributors.Select(x => x.DistributorId).ToList()
+                : new List<int>();
 
                 //images
-                item.Images = _productImagesService.GetByProductIdNoAsync(item.Id)
-                    .Select(x => new ProductImageViewModel()
-                    {
-                        Id = x.Id,
-                        Caption = x.Caption,
-                        CreateDate = x.CreateDate,
-                        ImageUrl = _storageService.GetFileUrl(x.ImageUrl),
-                        ProductId = x.ProductId,
-                        SortOrder = x.SortOrder,
-                    }).ToList();
+                var productImages = _productImagesService.GetByProductIdNoAsync(item.Id);
+
+                item.Images = productImages?.Count() > 0
+                ? productImages.Select(x => new ProductImageViewModel()
+                {
+                    Id = x.Id,
+                    Caption = x.Caption,
+                    CreateDate = x.CreateDate,
+                    ImageUrl = _storageService.GetFileUrl(x.ImageUrl),
+                    ProductId = x.ProductId,
+                    SortOrder = x.SortOrder,
+                }).ToList()
+                : new List<ProductImageViewModel>();
             }
 
             var products = new PageResult<ProductViewModel>()
@@ -154,26 +170,38 @@ namespace eShopSolution.BackendApi.Controllers
             var product = await _productService.GetById(productId);
             if (product == null) return BadRequest("Cannot find product");
 
+            //categories
             var productCategories = await _productCategoriesService.GetByProductId(productId);
-            var productDistributors = await _productDistributorsService.GetByProductId(productId);
-            var productImages = await _productImagesService.GetByProductId(productId);
 
-            List<int> categories = new List<int>();
-            foreach (var item in productCategories) categories.Add(item.CategoryId);
-
-            List<int> distributors = new List<int>();
-            foreach (var item in productDistributors) distributors.Add(item.DistributorId);
-
-            List<ProductImageViewModel> images = new List<ProductImageViewModel>();
-            foreach (var item in productImages) images.Add(new ProductImageViewModel()
+            var categories = productCategories.Count > 0
+            ? productCategories.Select(x => new CategoryViewModel()
             {
-                Id = item.Id,
-                ProductId = item.Id,
-                ImageUrl = _storageService.GetFileUrl(item.ImageUrl),
-                Caption = item.Caption,
-                CreateDate = item.CreateDate,
-                SortOrder = item.SortOrder,
-            });
+                Id = x.CategoryId,
+                Name = _categoryService.GetByIdNoAsync(x.CategoryId).Name,
+            }).ToList()
+            : new List<CategoryViewModel>();
+
+            //distributors
+            var productDistributors = await _productDistributorsService.GetByProductId(productId);
+
+            var distributors = productDistributors.Count > 0
+            ? productDistributors.Select(x => x.DistributorId).ToList()
+            : new List<int>();
+
+            //images
+            var productImages = _productImagesService.GetByProductIdNoAsync(productId);
+
+            var images = productImages?.Count() > 0
+            ? productImages.Select(x => new ProductImageViewModel()
+            {
+                Id = x.Id,
+                Caption = x.Caption,
+                CreateDate = x.CreateDate,
+                ImageUrl = _storageService.GetFileUrl(x.ImageUrl),
+                ProductId = x.ProductId,
+                SortOrder = x.SortOrder,
+            }).ToList()
+            : new List<ProductImageViewModel>();
 
             var productVM = new ProductViewModel()
             {
@@ -293,26 +321,38 @@ namespace eShopSolution.BackendApi.Controllers
             var product = await _productService.GetById(productId);
             if (product == null) return BadRequest("Cannot find product");
 
+            //categories
             var productCategories = await _productCategoriesService.GetByProductId(productId);
-            var productDistributors = await _productDistributorsService.GetByProductId(productId);
-            var productImages = await _productImagesService.GetByProductId(productId);
 
-            List<int> categories = new List<int>();
-            foreach (var item in productCategories) categories.Add(item.CategoryId);
-
-            List<int> distributors = new List<int>();
-            foreach (var item in productDistributors) distributors.Add(item.DistributorId);
-
-            List<ProductImageViewModel> images = new List<ProductImageViewModel>();
-            foreach (var item in productImages) images.Add(new ProductImageViewModel()
+            var categories = productCategories.Count > 0
+            ? productCategories.Select(x => new CategoryViewModel()
             {
-                Id = item.Id,
-                ProductId = item.Id,
-                ImageUrl = _storageService.GetFileUrl(item.ImageUrl),
-                Caption = item.Caption,
-                CreateDate = item.CreateDate,
-                SortOrder = item.SortOrder,
-            });
+                Id = x.CategoryId,
+                Name = _categoryService.GetByIdNoAsync(x.CategoryId).Name,
+            }).ToList()
+            : new List<CategoryViewModel>();
+
+            //distributors
+            var productDistributors = await _productDistributorsService.GetByProductId(productId);
+
+            var distributors = productDistributors.Count > 0
+            ? productDistributors.Select(x => x.DistributorId).ToList()
+            : new List<int>();
+
+            //images
+            var productImages = _productImagesService.GetByProductIdNoAsync(productId);
+
+            var images = productImages?.Count() > 0
+            ? productImages.Select(x => new ProductImageViewModel()
+            {
+                Id = x.Id,
+                Caption = x.Caption,
+                CreateDate = x.CreateDate,
+                ImageUrl = _storageService.GetFileUrl(x.ImageUrl),
+                ProductId = x.ProductId,
+                SortOrder = x.SortOrder,
+            }).ToList()
+            : new List<ProductImageViewModel>();
 
             var productVM = new ProductViewModel()
             {
@@ -500,7 +540,7 @@ namespace eShopSolution.BackendApi.Controllers
             await RemoveImageOnUpdate(request.inputHidden7, product, (int)SortOrderNumber.SEVENTH);
 
             //Save image
-            SaveImageOnUpdate(request.ThumbnailImages0, product, (int)SortOrderNumber.ZERO);
+            await SaveImageOnUpdate(request.ThumbnailImages0, product, (int)SortOrderNumber.ZERO);
             await SaveImageOnUpdate(request.ThumbnailImages1, product, (int)SortOrderNumber.FIRST);
             await SaveImageOnUpdate(request.ThumbnailImages2, product, (int)SortOrderNumber.SECOND);
             await SaveImageOnUpdate(request.ThumbnailImages3, product, (int)SortOrderNumber.THIRD);

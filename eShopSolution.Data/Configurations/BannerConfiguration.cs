@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using eShopSolution.Data.Entities;
+﻿using eShopSolution.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eShopSolution.Data.Configurations
@@ -15,6 +15,7 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.Summary).IsUnicode(true).HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(300).IsRequired(false);
             builder.Property(x => x.IsApproved).HasDefaultValue(false);
+            builder.Property(x => x.Order).HasDefaultValue(0);
         }
     }
 }
