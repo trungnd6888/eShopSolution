@@ -1,3 +1,4 @@
+using eShopSolution.Application.Catalog.Brands;
 using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Customers;
 using eShopSolution.Application.Catalog.Distributors;
@@ -8,6 +9,7 @@ using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
 using eShopSolution.Application.System.Actions;
 using eShopSolution.Application.System.Auth;
+using eShopSolution.Application.System.Banners;
 using eShopSolution.Application.System.Forms;
 using eShopSolution.Application.System.Histories;
 using eShopSolution.Application.System.RoleClaims;
@@ -38,6 +40,7 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<IBannerService, BannerService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IFormsService, FormsService>();
 builder.Services.AddTransient<IActionsService, ActionsService>();
@@ -47,6 +50,7 @@ builder.Services.AddTransient<IUserRolesService, UserRolesService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IRolesService, RolesService>();
 builder.Services.AddTransient<IUsersService, UsersService>();
+builder.Services.AddTransient<IBrandService, BrandService>();
 builder.Services.AddTransient<IProductCategoriesService, ProductCategoriesService>();
 builder.Services.AddTransient<IProductDistributorsService, ProductDistributorsService>();
 builder.Services.AddTransient<IProductImagesService, ProductImagesService>();
@@ -168,6 +172,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("PermissionCreate", policy => policy.RequireClaim("permission", "permission.create"));
     options.AddPolicy("PermissionUpdate", policy => policy.RequireClaim("permission", "permission.update"));
     options.AddPolicy("PermissionRemove", policy => policy.RequireClaim("permission", "permission.remove"));
+
+    options.AddPolicy("BannerView", policy => policy.RequireClaim("banner", "banner.view"));
+    options.AddPolicy("BannerCreate", policy => policy.RequireClaim("banner", "banner.create"));
+    options.AddPolicy("BannerUpdate", policy => policy.RequireClaim("banner", "banner.update"));
+    options.AddPolicy("BannerRemove", policy => policy.RequireClaim("banner", "banner.remove"));
 });
 
 var app = builder.Build();

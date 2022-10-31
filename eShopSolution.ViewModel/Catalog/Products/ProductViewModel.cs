@@ -1,4 +1,5 @@
-﻿using eShopSolution.ViewModel.Catalog.ProductImages;
+﻿using eShopSolution.ViewModel.Catalog.Categories;
+using eShopSolution.ViewModel.Catalog.ProductImages;
 
 namespace eShopSolution.ViewModel.Catalog.Products
 {
@@ -13,11 +14,13 @@ namespace eShopSolution.ViewModel.Catalog.Products
         public bool IsApproved { get; set; }
         public int? ApprovedId { get; set; }
         public int? UserId { get; set; }
+        public int? BrandId { get; set; }
         public string UserName { get; set; }
+        public string BrandName { get; set; }
         public string ApprovedName { get; set; }
         public bool IsNew { get; set; }
         public bool IsBestSale { get; set; }
-        public List<int> Categories { get; set; }
+        public List<CategoryViewModel> Categories { get; set; }
         public List<int> Distributors { get; set; }
         public List<ProductImageViewModel> Images { get; set; }
     }

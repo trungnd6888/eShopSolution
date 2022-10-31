@@ -22,6 +22,11 @@ namespace eShopSolution.Application.Catalog.Categories
             return await _context.Categories.FindAsync(categoryId);
         }
 
+        public Category GetByIdNoAsync(int categoryId)
+        {
+            return _context.Categories.Find(categoryId);
+        }
+
         public async Task<int> Create(Category category)
         {
             _context.Categories.Add(category);
