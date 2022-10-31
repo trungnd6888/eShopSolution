@@ -117,14 +117,14 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "fa098b9a-6a21-4458-a122-4d28e8492146",
+                            ConcurrencyStamp = "b4edad4f-e80c-4b23-8466-06126faac998",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "0b2acdf4-c643-45c9-bec3-7fbf48189c38",
+                            ConcurrencyStamp = "4613ef58-ec30-4978-90be-265579e588e1",
                             Description = "Thành viên",
                             Name = "member"
                         });
@@ -224,7 +224,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ffe8761c-f9a8-447f-9a0e-2d9febdd3aec",
+                            ConcurrencyStamp = "bacfc1c5-2fa4-43c9-82f9-b626cc40458b",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -270,6 +270,11 @@ namespace eShopSolution.Data.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<int>("Order")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Summary")
                         .HasMaxLength(500)
                         .IsUnicode(true)
@@ -284,6 +289,61 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Banners", (string)null);
+                });
+
+            modelBuilder.Entity("eShopSolution.Data.Entities.Brand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Order")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Brands", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Rolex",
+                            Order = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Patek Philippe",
+                            Order = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Omega",
+                            Order = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Cartier",
+                            Order = 0
+                        });
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Category", b =>
@@ -652,6 +712,9 @@ namespace eShopSolution.Data.Migrations
                     b.Property<int?>("ApprovedId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -698,6 +761,8 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ApprovedId");
+
+                    b.HasIndex("BrandId");
 
                     b.ToTable("Products", (string)null);
 
@@ -1020,7 +1085,15 @@ namespace eShopSolution.Data.Migrations
                         .WithMany("Products")
                         .HasForeignKey("ApprovedId");
 
+                    b.HasOne("eShopSolution.Data.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AppUser");
+
+                    b.Navigation("Brand");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.ProductCategory", b =>
@@ -1092,6 +1165,11 @@ namespace eShopSolution.Data.Migrations
 
                     b.Navigation("News");
 
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("eShopSolution.Data.Entities.Brand", b =>
+                {
                     b.Navigation("Products");
                 });
 

@@ -20,6 +20,7 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.IsNew).HasDefaultValue(false);
             builder.Property(x => x.IsBestSale).HasDefaultValue(false);
             builder.Property(x => x.UserId).IsRequired(false);
+            builder.Property(x => x.BrandId).IsRequired(false);
             builder.Property(x => x.ApprovedId).IsRequired(false);
         }
     }

@@ -24,6 +24,13 @@ namespace eShopSolution.Data.Extensions
                 new Category { Id = 1, Name = "Đồng hồ nam" }
             );
 
+            modelBuilder.Entity<Brand>().HasData(
+              new Brand { Id = 1, Name = "Rolex" },
+              new Brand { Id = 2, Name = "Patek Philippe" },
+              new Brand { Id = 3, Name = "Omega" },
+              new Brand { Id = 4, Name = "Cartier" }
+            );
+
             modelBuilder.Entity<ProductCategory>().HasData(
                 new ProductCategory { CategoryId = 1, ProductId = 1 },
                 new ProductCategory { CategoryId = 1, ProductId = 2 },
