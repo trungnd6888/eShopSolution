@@ -45,7 +45,7 @@ namespace eShopSolution.BackendApi.Controllers
                 IsApproved = x.IsApproved,
                 ImageUrl = !string.IsNullOrEmpty(x.ImageUrl) ? _storageService.GetFileUrl(x.ImageUrl) : string.Empty,
                 Order = x.Order,
-            }).Where(x => x.IsApproved == true).ToListAsync();
+            }).Where(x => x.IsApproved == true).OrderBy(x => x.Order).ToListAsync();
 
             var banners = new PageResult<Banner>()
             {
@@ -79,8 +79,6 @@ namespace eShopSolution.BackendApi.Controllers
                 ImageUrl = !string.IsNullOrEmpty(x.ImageUrl) ? _storageService.GetFileUrl(x.ImageUrl) : string.Empty,
                 Order = x.Order,
             }).ToListAsync();
-
-
 
             var banners = new PageResult<Banner>()
             {
@@ -144,7 +142,7 @@ namespace eShopSolution.BackendApi.Controllers
             banner.Order = request.Order;
 
             //remove image 
-            if (string.IsNullOrEmpty(request.inputHidden))
+            if (string.IsNullOrEmpty(request.InputHidden))
             {
                 if (!string.IsNullOrEmpty(banner.ImageUrl))
                 {

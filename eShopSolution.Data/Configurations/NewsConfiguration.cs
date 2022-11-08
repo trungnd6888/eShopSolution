@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using eShopSolution.Data.Entities;
+﻿using eShopSolution.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eShopSolution.Data.Configurations
@@ -13,7 +13,7 @@ namespace eShopSolution.Data.Configurations
             builder.Property(x => x.Id).UseIdentityColumn();
             builder.Property(x => x.Title).IsRequired().IsUnicode(true).HasMaxLength(300);
             builder.Property(x => x.Summary).IsUnicode(true).HasMaxLength(500).IsRequired(false);
-            builder.Property(x => x.Content).IsUnicode(true).HasMaxLength(1000).IsRequired(false);
+            builder.Property(x => x.Content).HasColumnType("nvarchar(max)").IsRequired(false);
             builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.CreateDate);
             builder.Property(x => x.IsApproved).HasDefaultValue(false);
