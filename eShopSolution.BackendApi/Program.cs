@@ -2,6 +2,7 @@ using eShopSolution.Application.Catalog.Brands;
 using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Customers;
 using eShopSolution.Application.Catalog.Distributors;
+using eShopSolution.Application.Catalog.Newses;
 using eShopSolution.Application.Catalog.ProductCategories;
 using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
@@ -40,6 +41,7 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<INewsService, NewsService>();
 builder.Services.AddTransient<IBannerService, BannerService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<IFormsService, FormsService>();
@@ -177,6 +179,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("BannerCreate", policy => policy.RequireClaim("banner", "banner.create"));
     options.AddPolicy("BannerUpdate", policy => policy.RequireClaim("banner", "banner.update"));
     options.AddPolicy("BannerRemove", policy => policy.RequireClaim("banner", "banner.remove"));
+
+    options.AddPolicy("NewsView", policy => policy.RequireClaim("news", "news.view"));
+    options.AddPolicy("NewsCreate", policy => policy.RequireClaim("news", "news.create"));
+    options.AddPolicy("NewsUpdate", policy => policy.RequireClaim("news", "news.update"));
+    options.AddPolicy("NewsRemove", policy => policy.RequireClaim("news", "news.remove"));
 });
 
 var app = builder.Build();

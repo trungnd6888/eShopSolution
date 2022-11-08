@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using eShopSolution.Data.Entities;
+﻿using eShopSolution.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace eShopSolution.Data.Configurations
@@ -12,10 +12,11 @@ namespace eShopSolution.Data.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
             builder.Property(x => x.Name).IsUnicode(true).HasMaxLength(100);
-            builder.Property(x => x.Birthday); 
+            builder.Property(x => x.Birthday);
             builder.Property(x => x.Address).IsUnicode(true).HasMaxLength(500).IsRequired(false);
             builder.Property(x => x.Tel).IsUnicode(false).HasMaxLength(20).IsRequired(false);
             builder.Property(x => x.Email).IsUnicode(false).HasMaxLength(100).IsRequired(false);
+            builder.Property(x => x.ImageUrl).IsUnicode(false).HasMaxLength(300).IsRequired(false);
         }
     }
 }

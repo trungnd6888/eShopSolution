@@ -11,7 +11,7 @@ namespace eShopSolution.Application.System.Users
 
         IQueryable<AppUser> GetAll();
 
-        Task<AppUser> GetById(int userId);
+        Task<AppUser> GetById(int? userId);
 
         Task<AppUser> GetByUserName(string userCode);
         Task<int> SaveChange();
