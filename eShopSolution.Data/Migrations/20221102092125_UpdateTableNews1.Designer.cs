@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eShopSolution.Data.EF;
 
@@ -11,9 +12,10 @@ using eShopSolution.Data.EF;
 namespace eShopSolution.Data.Migrations
 {
     [DbContext(typeof(EShopDbContext))]
-    partial class EShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221102092125_UpdateTableNews1")]
+    partial class UpdateTableNews1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,14 +119,14 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "1928aaf8-43c7-4153-8f33-291c0b2c0915",
+                            ConcurrencyStamp = "bd06c3b7-7894-4c90-8208-69b9ece4acff",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "615fcd52-5e65-47a8-9609-e9b7b24099b8",
+                            ConcurrencyStamp = "1b93d09c-8d03-4513-863d-36b7d15d2831",
                             Description = "Thành viên",
                             Name = "member"
                         });
@@ -224,7 +226,7 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d07345c8-4569-4df6-89c4-a84b6ce475cd",
+                            ConcurrencyStamp = "099164ce-9c00-4949-965a-d6c0dc6ad917",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
@@ -621,7 +623,9 @@ namespace eShopSolution.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");

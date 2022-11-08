@@ -1,9 +1,12 @@
 ﻿using eShopSolution.Application.Catalog.Customers;
+using eShopSolution.Application.Common;
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.Catalog.Customers;
+using eShopSolution.ViewModel.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 namespace eShopSolution.BackendApi.Controllers
 {
@@ -13,10 +16,12 @@ namespace eShopSolution.BackendApi.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
+        private readonly IStorageService _storageService;
 
-        public CustomersController(ICustomerService customerService)
+        public CustomersController(ICustomerService customerService, IStorageService storageService)
         {
             _customerService = customerService;
+            _storageService = storageService;
         }
 
         [HttpGet]
@@ -29,8 +34,24 @@ namespace eShopSolution.BackendApi.Controllers
                 query = query.Where(x => x.Name.Contains(request.Keyword.Trim()) || x.Email.Contains(request.Keyword.Trim()));
             }
 
-            var customers = await query.ToListAsync();
+            var totalRecord = await query.CountAsync();
 
+            var data = await query.Select(x => new Customer()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Birthday = x.Birthday,
+                Address = x.Address,
+                ImageUrl = !string.IsNullOrEmpty(x.ImageUrl) ? _storageService.GetFileUrl(x.ImageUrl) : string.Empty,
+                Email = x.Email,
+                Tel = x.Tel,
+            }).ToListAsync();
+
+            var customers = new PageResult<Customer>()
+            {
+                Data = data,
+                TotalRecord = totalRecord,
+            };
 
             return Ok(customers);
         }
@@ -42,19 +63,25 @@ namespace eShopSolution.BackendApi.Controllers
 
             if (customer == null) return BadRequest($"Can not find customer by id: {customerId}");
 
+            customer.ImageUrl = !string.IsNullOrEmpty(customer.ImageUrl) ? _storageService.GetFileUrl(customer.ImageUrl) : string.Empty;
+
             return Ok(customer);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] CustomerCreateRequest request)
+        public async Task<ActionResult> Create([FromForm] CustomerCreateRequest request)
         {
             Customer customer = new Customer();
-
             customer.Name = request.Name;
             customer.Email = request.Email;
             customer.Birthday = request.Birthday;
             customer.Address = request.Address;
             customer.Tel = request.Tel;
+
+            if (request.ThumbnailImage != null)
+            {
+                customer.ImageUrl = await this.SaveFile(request.ThumbnailImage[0]);
+            }
 
             var result = await _customerService.Create(customer);
 
@@ -64,7 +91,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPatch("{customerId}")]
-        public async Task<ActionResult> Update(int customerId, [FromBody] CustomerUpdateRequest request)
+        public async Task<ActionResult> Update(int customerId, [FromForm] CustomerUpdateRequest request)
         {
             var customer = await _customerService.GetById(customerId);
 
@@ -75,6 +102,28 @@ namespace eShopSolution.BackendApi.Controllers
             customer.Address = request.Address;
             customer.Tel = request.Tel;
             customer.Email = request.Email;
+
+            //remove image 
+            if (string.IsNullOrEmpty(request.InputHidden))
+            {
+                if (!string.IsNullOrEmpty(customer.ImageUrl))
+                {
+                    await _storageService.DeleteFileAsync(customer.ImageUrl);
+                    customer.ImageUrl = null;
+                }
+            }
+
+            //add image
+            if (request.ThumbnailImage != null)
+            {
+                //remove image after add
+                if (!string.IsNullOrEmpty(customer.ImageUrl))
+                {
+                    await _storageService.DeleteFileAsync(customer.ImageUrl);
+                }
+
+                customer.ImageUrl = await this.SaveFile(request.ThumbnailImage[0]);
+            }
 
             var result = await _customerService.Update(customer);
 
@@ -95,6 +144,14 @@ namespace eShopSolution.BackendApi.Controllers
             if (result > 0) return Ok("Remove customer success");
 
             return BadRequest("Fail to remove customer");
+        }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            return fileName;
         }
     }
 }

@@ -31,7 +31,7 @@ namespace eShopSolution.Application.System.Users
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<AppUser> GetById(int userId)
+        public async Task<AppUser> GetById(int? userId)
         {
             return await _context.AppUsers.FindAsync(userId);
         }

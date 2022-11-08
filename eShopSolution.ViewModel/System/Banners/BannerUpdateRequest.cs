@@ -9,6 +9,6 @@ namespace eShopSolution.ViewModel.System.Banners
         public List<IFormFile>? ThumbnailImage { get; set; }
         public bool IsApproved { get; set; }
         public int Order { get; set; }
-        public string? inputHidden { get; set; }
+        public string? InputHidden { get; set; }
     }
 }
