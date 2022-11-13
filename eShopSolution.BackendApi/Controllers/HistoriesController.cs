@@ -16,26 +16,26 @@ namespace eShopSolution.BackendApi.Controllers
     [Authorize]
     public class HistoriesController : ControllerBase
     {
-        private readonly IHistoriesService _historiesService;
-        private readonly IFormsService _formsService;
-        private readonly IActionsService _actionsService;
-        private readonly IUsersService _usersService;
+        private readonly IHistoryService _historyService;
+        private readonly IFormService _formService;
+        private readonly IActionService _actionService;
+        private readonly IUserService _userService;
 
-        public HistoriesController(IHistoriesService historiesService, IActionsService actionsService,
-            IFormsService formsService, IUsersService usersService)
+        public HistoriesController(IHistoryService historyService, IActionService actionService,
+            IFormService formService, IUserService userService)
         {
-            _historiesService = historiesService;
-            _actionsService = actionsService;
-            _formsService = formsService;
-            _usersService = usersService;
+            _historyService = historyService;
+            _actionService = actionService;
+            _formService = formService;
+            _userService = userService;
         }
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var query = from h in _historiesService.GetAll()
-                        join f in _formsService.GetAll() on h.FormId equals f.Id
-                        join a in _actionsService.GetAll() on h.ActionId equals a.Id
-                        join u in _usersService.GetAll() on h.UserId equals u.Id
+            var query = from h in _historyService.GetAll()
+                        join f in _formService.GetAll() on h.FormId equals f.Id
+                        join a in _actionService.GetAll() on h.ActionId equals a.Id
+                        join u in _userService.GetAll() on h.UserId equals u.Id
                         select new HistoryViewModel()
                         {
                             Id = h.Id,
@@ -61,7 +61,7 @@ namespace eShopSolution.BackendApi.Controllers
         [HttpGet("{historyId}")]
         public async Task<ActionResult> GetById(int historyId)
         {
-            var history = await _historiesService.GetById(historyId);
+            var history = await _historyService.GetById(historyId);
 
             if (history == null) return BadRequest($"Can not find history by id: {historyId}");
 
@@ -79,7 +79,7 @@ namespace eShopSolution.BackendApi.Controllers
                 ActionId = request.ActionId,
             };
 
-            var result = await _historiesService.Create(history);
+            var result = await _historyService.Create(history);
 
             if (result > 0) return Ok("Add history success");
 
@@ -89,10 +89,10 @@ namespace eShopSolution.BackendApi.Controllers
         [HttpDelete("{historyId}")]
         public async Task<ActionResult> Remove(int historyId)
         {
-            var history = await _historiesService.GetById(historyId);
+            var history = await _historyService.GetById(historyId);
             if (history == null) return BadRequest($"Can not find history by id: {historyId}");
 
-            var result = await _historiesService.Remove(history);
+            var result = await _historyService.Remove(history);
             if (result > 0) return Ok("Delete history succes");
 
             return BadRequest("Fail to delete history");

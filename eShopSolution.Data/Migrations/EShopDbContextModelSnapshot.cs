@@ -117,16 +117,23 @@ namespace eShopSolution.Data.Migrations
                         new
                         {
                             Id = 1,
-                            ConcurrencyStamp = "1928aaf8-43c7-4153-8f33-291c0b2c0915",
+                            ConcurrencyStamp = "184c5f6c-7bf5-4374-a61f-6fc11778266a",
                             Description = "Quản trị viên",
                             Name = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            ConcurrencyStamp = "615fcd52-5e65-47a8-9609-e9b7b24099b8",
+                            ConcurrencyStamp = "515990bd-c361-4a96-8f97-2ef82cdecf0b",
                             Description = "Thành viên",
                             Name = "member"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ConcurrencyStamp = "c6fff7e4-15ef-46b1-abb3-8269524d2af5",
+                            Description = "Khách hàng",
+                            Name = "customer"
                         });
                 });
 
@@ -165,10 +172,18 @@ namespace eShopSolution.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(1000)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("AvatarImage")
                         .HasMaxLength(300)
                         .IsUnicode(false)
                         .HasColumnType("varchar(300)");
+
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("nvarchar(max)");
@@ -224,12 +239,12 @@ namespace eShopSolution.Data.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d07345c8-4569-4df6-89c4-a84b6ce475cd",
+                            Birthday = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ConcurrencyStamp = "bb316a89-6d0e-4337-b3ef-1935da11701b",
                             Email = "duc@gmail.com",
                             EmailConfirmed = false,
                             FullName = "Nguyễn Phúc Đức",
                             LockoutEnabled = false,
-                            PasswordHash = "123456",
                             PhoneNumber = "098765446",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
@@ -665,20 +680,46 @@ namespace eShopSolution.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)");
+
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CustomerId")
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("StatusId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusId")
+                    b.Property<string>("Tel")
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("StatusId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -913,6 +954,23 @@ namespace eShopSolution.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Status", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Đang chuẩn bị"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Đang giao"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Đã giao"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
@@ -1043,19 +1101,15 @@ namespace eShopSolution.Data.Migrations
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Order", b =>
                 {
-                    b.HasOne("eShopSolution.Data.Entities.Customer", "Customer")
-                        .WithMany("Orders")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("eShopSolution.Data.Entities.Status", "Status")
                         .WithMany("Orders")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StatusId");
 
-                    b.Navigation("Customer");
+                    b.HasOne("eShopSolution.Data.Entities.AppUser", "AppUser")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Status");
                 });
@@ -1165,6 +1219,8 @@ namespace eShopSolution.Data.Migrations
 
                     b.Navigation("News");
 
+                    b.Navigation("Orders");
+
                     b.Navigation("Products");
                 });
 
@@ -1176,11 +1232,6 @@ namespace eShopSolution.Data.Migrations
             modelBuilder.Entity("eShopSolution.Data.Entities.Category", b =>
                 {
                     b.Navigation("ProductCategories");
-                });
-
-            modelBuilder.Entity("eShopSolution.Data.Entities.Customer", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("eShopSolution.Data.Entities.Distributor", b =>

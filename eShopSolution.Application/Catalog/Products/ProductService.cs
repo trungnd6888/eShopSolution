@@ -1,4 +1,4 @@
-﻿using eShopSolution.Application.Common;
+﻿using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
 using eShopSolution.Utilities.Exceptions;
