@@ -11,6 +11,6 @@
         public bool IsApproved { get; set; }
         public int? UserId { get; set; }
         public int? ApprovedId { get; set; }
-        public AppUser AppUser { get; set; }
+        public AppUser? AppUser { get; set; }
     }
 }

@@ -15,5 +15,7 @@ namespace eShopSolution.Application.System.Auth
         Task<bool> ForgotPassword(ForgotPasswordRequest request, string url);
 
         Task<Hashtable> ResetPassword(ResetPasswordRequest request, string token);
+
+        Task SaveChange();
     }
 }

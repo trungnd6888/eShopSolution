@@ -4,6 +4,14 @@
     {
         public const string MainConnectionString = "eShopSolutionDb";
 
+        public const int STATUS_DEFAULT = 1;
+
+        public enum RoleId
+        {
+            PUBLIC = 3,
+            MANAGER = 2,
+        };
+
         public enum FormId
         {
             PRODUCT = 1,

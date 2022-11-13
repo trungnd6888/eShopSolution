@@ -1,5 +1,5 @@
 ﻿using eShopSolution.Application.Catalog.Customers;
-using eShopSolution.Application.Common;
+using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.Catalog.Customers;
 using eShopSolution.ViewModel.Common;

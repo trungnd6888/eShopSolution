@@ -12,16 +12,16 @@ namespace eShopSolution.BackendApi.Controllers
     [Authorize(Policy = "PermissionView")]
     public class RoleClaimsController : ControllerBase
     {
-        private readonly IRoleClaimsService _roleClaimsService;
-        public RoleClaimsController(IRoleClaimsService roleClaimsService)
+        private readonly IRoleClaimService _roleClaimService;
+        public RoleClaimsController(IRoleClaimService roleClaimService)
         {
-            _roleClaimsService = roleClaimsService;
+            _roleClaimService = roleClaimService;
         }
 
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] RoleClaimGetRequest request)
         {
-            var query = _roleClaimsService.Get();
+            var query = _roleClaimService.Get();
 
             if (request.RoleId > 0)
             {
@@ -42,7 +42,7 @@ namespace eShopSolution.BackendApi.Controllers
             roleClaim.ClaimType = request.ClaimType;
             roleClaim.ClaimValue = request.ClaimValue;
 
-            var result = await _roleClaimsService.Create(roleClaim);
+            var result = await _roleClaimService.Create(roleClaim);
 
             if (result > 0) return Ok("RoleClaim add success");
             return BadRequest("Fail to roleClaim add");
@@ -52,11 +52,11 @@ namespace eShopSolution.BackendApi.Controllers
         [Authorize(Policy = "PermissionRemove")]
         public async Task<ActionResult> Remove(int roleClaimId)
         {
-            var roleClaim = await _roleClaimsService.GetById(roleClaimId);
+            var roleClaim = await _roleClaimService.GetById(roleClaimId);
 
             if (roleClaim == null) return BadRequest($"Can not find role claim by id = {0}");
 
-            var result = await _roleClaimsService.Remove(roleClaim);
+            var result = await _roleClaimService.Remove(roleClaim);
 
             if (result > 0) return Ok("remove role claim success");
 

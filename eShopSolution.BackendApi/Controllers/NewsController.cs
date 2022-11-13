@@ -1,5 +1,5 @@
 ﻿using eShopSolution.Application.Catalog.Newses;
-using eShopSolution.Application.Common;
+using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.Catalog.Newses;
@@ -16,13 +16,13 @@ namespace eShopSolution.BackendApi.Controllers
     public class NewsController : ControllerBase
     {
         private readonly INewsService _newsService;
-        private readonly IUsersService _usersService;
+        private readonly IUserService _userService;
         private readonly IStorageService _storageService;
 
-        public NewsController(INewsService newsService, IUsersService usersService, IStorageService storageService)
+        public NewsController(INewsService newsService, IUserService userService, IStorageService storageService)
         {
             _newsService = newsService;
-            _usersService = usersService;
+            _userService = userService;
             _storageService = storageService;
         }
 
@@ -30,7 +30,7 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> GetPublic([FromQuery] NewsGetRequest request)
         {
             var query = from n in _newsService.GetAll()
-                        join u in _usersService.GetAll() on n.UserId equals u.Id
+                        join u in _userService.GetAll() on n.UserId equals u.Id
                         into table
                         from item in table.DefaultIfEmpty()
                         select new { n, item };
@@ -75,7 +75,7 @@ namespace eShopSolution.BackendApi.Controllers
 
             if (news == null) return BadRequest($"Can not find news by id: {newsId}");
 
-            var user = await _usersService.GetById(news.UserId);
+            var user = await _userService.GetById(news.UserId);
 
             var newsVM = new NewsViewModel()
             {
@@ -105,7 +105,7 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> Get([FromQuery] NewsGetRequest request)
         {
             var query = from n in _newsService.GetAll()
-                        join u in _usersService.GetAll() on n.UserId equals u.Id
+                        join u in _userService.GetAll() on n.UserId equals u.Id
                         into table
                         from item in table.DefaultIfEmpty()
                         select new { n, item };

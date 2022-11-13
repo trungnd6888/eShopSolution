@@ -9,6 +9,12 @@ namespace eShopSolution.Data.Extensions
         public static void Seed(this ModelBuilder modelBuilder)
         {
             //Data seeding
+            modelBuilder.Entity<Status>().HasData(
+                new Status { Id = 1, Name = "Đang chuẩn bị" },
+                new Status { Id = 2, Name = "Đang giao" },
+                new Status { Id = 3, Name = "Đã giao" }
+            );
+
             modelBuilder.Entity<Customer>().HasData(
                 new Customer { Id = 1, Name = "Nguyễn Trung", Address = "Hà Nội", Email = "trungk47s5@gmail.com", Tel = "0985052368", Birthday = DateTime.Parse("1993-09-20") },
                 new Customer { Id = 2, Name = "Nguyễn Tuân", Address = "Hà Nội", Email = "tuank47s5@gmail.com", Tel = "098121322", Birthday = DateTime.Parse("1992-06-09") }
@@ -38,12 +44,13 @@ namespace eShopSolution.Data.Extensions
             );
 
             modelBuilder.Entity<AppUser>().HasData(
-                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName = "ducnp", PasswordHash = "123456", Email = "duc@gmail.com", PhoneNumber = "098765446" }
+                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName = "ducnp", Email = "duc@gmail.com", PhoneNumber = "098765446" }
             );
 
             modelBuilder.Entity<AppRole>().HasData(
                 new AppRole { Id = 1, Name = "admin", Description = "Quản trị viên" },
-                new AppRole { Id = 2, Name = "member", Description = "Thành viên" }
+                new AppRole { Id = 2, Name = "member", Description = "Thành viên" },
+                new AppRole { Id = 3, Name = "customer", Description = "Khách hàng" }
             );
 
             modelBuilder.Entity<Action>().HasData(

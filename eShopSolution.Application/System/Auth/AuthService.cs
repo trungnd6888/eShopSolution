@@ -1,12 +1,12 @@
-﻿using eShopSolution.Application.Common;
+﻿using eShopSolution.Application.Common.FileStorage;
+using eShopSolution.Application.Common.Mail;
+using eShopSolution.Data.EF;
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.System.Auth;
-using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using MimeKit;
 using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -21,14 +21,18 @@ namespace eShopSolution.Application.System.Auth
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IConfiguration _config;
         private readonly IStorageService _storageService;
+        private readonly IMailService _mailService;
+        private readonly EShopDbContext _context;
 
-        public AuthService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<AppRole> roleManager, IConfiguration config, IStorageService storageService)
+        public AuthService(EShopDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<AppRole> roleManager, IConfiguration config, IStorageService storageService, IMailService mailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _config = config;
             _storageService = storageService;
+            _mailService = mailService;
+            _context = context;
         }
 
         public async Task<AppUser> GetByUserName(string userName)
@@ -140,21 +144,8 @@ namespace eShopSolution.Application.System.Auth
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             //send email
-            var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("destinee.koelpin99@ethereal.email"));
-            email.To.Add(MailboxAddress.Parse(request.Email));
-
-            email.Subject = "Send mail from Asp.net Core";
-            email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
-            {
-                Text = "<a href='" + url + token + "'>Click here reset password: </a>"
-            };
-
-            using var smtp = new SmtpClient();
-            smtp.Connect("smtp.ethereal.email", 587, MailKit.Security.SecureSocketOptions.StartTls);
-            smtp.Authenticate("destinee.koelpin99@ethereal.email", "A9HSNskdgxg6UQMEFH");
-            smtp.Send(email);
-            smtp.Disconnect(true);
+            var contentMail = "<a href='" + url + token + "'>Click here reset password: </a>";
+            _mailService.SentMail(contentMail, request.Email);
 
             return true;
         }
@@ -180,6 +171,11 @@ namespace eShopSolution.Application.System.Auth
             {
                 { "result", true }
             };
+        }
+
+        public async Task SaveChange()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
