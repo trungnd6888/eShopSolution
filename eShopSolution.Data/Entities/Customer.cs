@@ -1,4 +1,5 @@
-﻿namespace eShopSolution.Data.Entities
+﻿
+namespace eShopSolution.Data.Entities
 {
     public class Customer
     {
@@ -9,6 +10,5 @@
         public string? Tel { get; set; }
         public string? Email { get; set; }
         public string? ImageUrl { get; set; }
-        public List<Order>? Orders { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using eShopSolution.Application.Common;
+﻿using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Application.System.UserRoles;
 using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
@@ -18,14 +18,14 @@ namespace eShopSolution.BackendApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IStorageService _storageService;
-        private readonly IUsersService _userService;
-        private readonly IUserRolesService _userRolesService;
+        private readonly IUserService _userService;
+        private readonly IUserRoleService _userRoleService;
 
-        public UsersController(IUsersService userService, IStorageService storageService, IUserRolesService userRolesService)
+        public UsersController(IUserService userService, IStorageService storageService, IUserRoleService userRoleService)
         {
             _userService = userService;
             _storageService = storageService;
-            _userRolesService = userRolesService;
+            _userRoleService = userRoleService;
         }
 
         [HttpGet]
@@ -75,7 +75,7 @@ namespace eShopSolution.BackendApi.Controllers
             }
 
             //set userRoles
-            var userRoles = await _userRolesService.GetByUserId(userId);
+            var userRoles = await _userRoleService.GetByUserId(userId);
 
             List<int> roles = new List<int>();
             foreach (var item in userRoles) roles.Add(item.RoleId);
@@ -120,11 +120,11 @@ namespace eShopSolution.BackendApi.Controllers
             user.Email = request.Email;
 
             //Remove foreign key Old
-            var userRolesRemove = await _userRolesService.GetByUserId(userId);
+            var userRolesRemove = await _userRoleService.GetByUserId(userId);
 
             foreach (var item in userRolesRemove)
             {
-                _userRolesService.RemoveNotSave(item);
+                _userRoleService.RemoveNotSave(item);
             }
 
             //Add foreign key New
@@ -132,7 +132,7 @@ namespace eShopSolution.BackendApi.Controllers
             {
                 foreach (var item in request.Roles)
                 {
-                    await _userRolesService.Add(new AppUserRole()
+                    await _userRoleService.Add(new AppUserRole()
                     {
                         UserId = user.Id,
                         RoleId = item,

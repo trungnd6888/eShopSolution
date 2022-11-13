@@ -1,4 +1,4 @@
-﻿using eShopSolution.Application.Common;
+﻿using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Application.System.Banners;
 using eShopSolution.Data.Entities;
 using eShopSolution.ViewModel.Common;

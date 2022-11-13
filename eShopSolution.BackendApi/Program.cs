@@ -3,11 +3,15 @@ using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Customers;
 using eShopSolution.Application.Catalog.Distributors;
 using eShopSolution.Application.Catalog.Newses;
+using eShopSolution.Application.Catalog.OrderDetails;
+using eShopSolution.Application.Catalog.Orders;
 using eShopSolution.Application.Catalog.ProductCategories;
 using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
 using eShopSolution.Application.Catalog.Products;
-using eShopSolution.Application.Common;
+using eShopSolution.Application.Catalog.Statuses;
+using eShopSolution.Application.Common.FileStorage;
+using eShopSolution.Application.Common.Mail;
 using eShopSolution.Application.System.Actions;
 using eShopSolution.Application.System.Auth;
 using eShopSolution.Application.System.Banners;
@@ -28,6 +32,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,21 +46,26 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<IMailService, MailService>();
+builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
+builder.Services.AddTransient<IStatusService, StatusService>();
+builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<INewsService, NewsService>();
 builder.Services.AddTransient<IBannerService, BannerService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
-builder.Services.AddTransient<IFormsService, FormsService>();
-builder.Services.AddTransient<IActionsService, ActionsService>();
-builder.Services.AddTransient<IHistoriesService, HistoriesService>();
-builder.Services.AddTransient<IRoleClaimsService, RoleClaimsService>();
-builder.Services.AddTransient<IUserRolesService, UserRolesService>();
+builder.Services.AddTransient<IFormService, FormService>();
+builder.Services.AddTransient<IActionService, ActionService>();
+builder.Services.AddTransient<IHistoryService, HistoryService>();
+builder.Services.AddTransient<IRoleClaimService, RoleClaimService>();
+builder.Services.AddTransient<IUserRoleService, UserRoleService>();
 builder.Services.AddTransient<IProductService, ProductService>();
-builder.Services.AddTransient<IRolesService, RolesService>();
-builder.Services.AddTransient<IUsersService, UsersService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IBrandService, BrandService>();
-builder.Services.AddTransient<IProductCategoriesService, ProductCategoriesService>();
-builder.Services.AddTransient<IProductDistributorsService, ProductDistributorsService>();
-builder.Services.AddTransient<IProductImagesService, ProductImagesService>();
+builder.Services.AddTransient<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddTransient<IProductDistributorService, ProductDistributorService>();
+builder.Services.AddTransient<IProductImageService, ProductImageService>();
 builder.Services.AddTransient<IDistributorService, DistributorService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IStorageService, FileStorageService>();
@@ -66,7 +76,12 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 
 builder.Services.AddControllers()
-                .AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+                .AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>())
+                .AddJsonOptions(options =>
+                 {
+                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                     options.JsonSerializerOptions.WriteIndented = true;
+                 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -184,6 +199,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("NewsCreate", policy => policy.RequireClaim("news", "news.create"));
     options.AddPolicy("NewsUpdate", policy => policy.RequireClaim("news", "news.update"));
     options.AddPolicy("NewsRemove", policy => policy.RequireClaim("news", "news.remove"));
+
+    options.AddPolicy("OrderView", policy => policy.RequireClaim("order", "order.view"));
+    options.AddPolicy("OrderCreate", policy => policy.RequireClaim("order", "order.create"));
+    options.AddPolicy("OrderUpdate", policy => policy.RequireClaim("order", "order.update"));
+    options.AddPolicy("OrderRemove", policy => policy.RequireClaim("order", "order.remove"));
 });
 
 var app = builder.Build();

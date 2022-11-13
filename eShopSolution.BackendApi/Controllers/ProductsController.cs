@@ -4,7 +4,7 @@ using eShopSolution.Application.Catalog.ProductCategories;
 using eShopSolution.Application.Catalog.ProductDistributors;
 using eShopSolution.Application.Catalog.ProductImages;
 using eShopSolution.Application.Catalog.Products;
-using eShopSolution.Application.Common;
+using eShopSolution.Application.Common.FileStorage;
 using eShopSolution.Application.System.Histories;
 using eShopSolution.Application.System.Users;
 using eShopSolution.Data.Entities;
@@ -27,25 +27,25 @@ namespace eShopSolution.BackendApi.Controllers
     {
         private readonly IStorageService _storageService;
         private readonly IProductService _productService;
-        private readonly IProductImagesService _productImagesService;
-        private readonly IProductCategoriesService _productCategoriesService;
-        private readonly IProductDistributorsService _productDistributorsService;
-        private readonly IHistoriesService _historiesService;
-        private readonly IUsersService _usersService;
+        private readonly IProductImageService _productImageService;
+        private readonly IProductCategoryService _productCategoryService;
+        private readonly IProductDistributorService _productDistributorService;
+        private readonly IHistoryService _historyService;
+        private readonly IUserService _userService;
         private readonly IBrandService _brandService;
         private readonly ICategoryService _categoryService;
 
-        public ProductsController(IProductService productService, IProductCategoriesService productCategoriesService,
-            IProductDistributorsService productDistributorsService, IProductImagesService productImagesService,
-            IStorageService storageService, IHistoriesService historiesService, IUsersService usersService, IBrandService brandService, ICategoryService categoryService)
+        public ProductsController(IProductService productService, IProductCategoryService productCategoriesService,
+            IProductDistributorService productDistributorsService, IProductImageService productImagesService,
+            IStorageService storageService, IHistoryService historyService, IUserService userService, IBrandService brandService, ICategoryService categoryService)
         {
             _storageService = storageService;
             _productService = productService;
-            _productImagesService = productImagesService;
-            _productCategoriesService = productCategoriesService;
-            _productDistributorsService = productDistributorsService;
-            _historiesService = historiesService;
-            _usersService = usersService;
+            _productImageService = productImagesService;
+            _productCategoryService = productCategoriesService;
+            _productDistributorService = productDistributorsService;
+            _historyService = historyService;
+            _userService = userService;
             _brandService = brandService;
             _categoryService = categoryService;
         }
@@ -54,10 +54,10 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> GetPublic([FromQuery] ProductGetRequest request)
         {
             var query = from p in _productService.GetAll()
-                        join u in _usersService.GetAll() on p.UserId equals u.Id
+                        join u in _userService.GetAll() on p.UserId equals u.Id
                         join b in _brandService.GetAll() on p.BrandId equals b.Id
-                        join ua in _usersService.GetAll() on p.ApprovedId equals ua.Id
-                        join pc in _productCategoriesService.GetAll() on p.Id equals pc.ProductId
+                        join ua in _userService.GetAll() on p.ApprovedId equals ua.Id
+                        join pc in _productCategoryService.GetAll() on p.Id equals pc.ProductId
                         into table
                         from item in table.DefaultIfEmpty()
                         select new { p, u, b, ua, item };
@@ -122,7 +122,7 @@ namespace eShopSolution.BackendApi.Controllers
             foreach (var item in data)
             {
                 //categories
-                var productCategories = await _productCategoriesService.GetByProductId(item.Id);
+                var productCategories = await _productCategoryService.GetByProductId(item.Id);
 
                 item.Categories = productCategories.Count > 0
                 ? productCategories.Select(x => new CategoryViewModel()
@@ -133,14 +133,14 @@ namespace eShopSolution.BackendApi.Controllers
                 : new List<CategoryViewModel>();
 
                 //distributors
-                var productDistributors = await _productDistributorsService.GetByProductId(item.Id);
+                var productDistributors = await _productDistributorService.GetByProductId(item.Id);
 
                 item.Distributors = productDistributors.Count > 0
                 ? productDistributors.Select(x => x.DistributorId).ToList()
                 : new List<int>();
 
                 //images
-                var productImages = _productImagesService.GetByProductIdNoAsync(item.Id);
+                var productImages = _productImageService.GetByProductIdNoAsync(item.Id);
 
                 item.Images = productImages?.Count() > 0
                 ? productImages.Select(x => new ProductImageViewModel()
@@ -171,7 +171,7 @@ namespace eShopSolution.BackendApi.Controllers
             if (product == null) return BadRequest("Cannot find product");
 
             //categories
-            var productCategories = await _productCategoriesService.GetByProductId(productId);
+            var productCategories = await _productCategoryService.GetByProductId(productId);
 
             var categories = productCategories.Count > 0
             ? productCategories.Select(x => new CategoryViewModel()
@@ -182,14 +182,14 @@ namespace eShopSolution.BackendApi.Controllers
             : new List<CategoryViewModel>();
 
             //distributors
-            var productDistributors = await _productDistributorsService.GetByProductId(productId);
+            var productDistributors = await _productDistributorService.GetByProductId(productId);
 
             var distributors = productDistributors.Count > 0
             ? productDistributors.Select(x => x.DistributorId).ToList()
             : new List<int>();
 
             //images
-            var productImages = _productImagesService.GetByProductIdNoAsync(productId);
+            var productImages = _productImageService.GetByProductIdNoAsync(productId);
 
             var images = productImages?.Count() > 0
             ? productImages.Select(x => new ProductImageViewModel()
@@ -230,9 +230,9 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> Get([FromQuery] ProductGetRequest request)
         {
             var query = from p in _productService.GetAll()
-                        join u in _usersService.GetAll() on p.UserId equals u.Id
-                        join ua in _usersService.GetAll() on p.ApprovedId equals ua.Id
-                        join pc in _productCategoriesService.GetAll() on p.Id equals pc.ProductId
+                        join u in _userService.GetAll() on p.UserId equals u.Id
+                        join ua in _userService.GetAll() on p.ApprovedId equals ua.Id
+                        join pc in _productCategoryService.GetAll() on p.Id equals pc.ProductId
                         into table
                         from item in table.DefaultIfEmpty()
                         select new { p, u, ua, item };
@@ -292,7 +292,7 @@ namespace eShopSolution.BackendApi.Controllers
             //Set Images for data
             foreach (var item in data)
             {
-                item.Images = _productImagesService.GetByProductIdNoAsync(item.Id)
+                item.Images = _productImageService.GetByProductIdNoAsync(item.Id)
                     .Select(x => new ProductImageViewModel()
                     {
                         Id = x.Id,
@@ -322,7 +322,7 @@ namespace eShopSolution.BackendApi.Controllers
             if (product == null) return BadRequest("Cannot find product");
 
             //categories
-            var productCategories = await _productCategoriesService.GetByProductId(productId);
+            var productCategories = await _productCategoryService.GetByProductId(productId);
 
             var categories = productCategories.Count > 0
             ? productCategories.Select(x => new CategoryViewModel()
@@ -333,14 +333,14 @@ namespace eShopSolution.BackendApi.Controllers
             : new List<CategoryViewModel>();
 
             //distributors
-            var productDistributors = await _productDistributorsService.GetByProductId(productId);
+            var productDistributors = await _productDistributorService.GetByProductId(productId);
 
             var distributors = productDistributors.Count > 0
             ? productDistributors.Select(x => x.DistributorId).ToList()
             : new List<int>();
 
             //images
-            var productImages = _productImagesService.GetByProductIdNoAsync(productId);
+            var productImages = _productImageService.GetByProductIdNoAsync(productId);
 
             var images = productImages?.Count() > 0
             ? productImages.Select(x => new ProductImageViewModel()
@@ -455,7 +455,7 @@ namespace eShopSolution.BackendApi.Controllers
                 UserId = request.UserId,
             };
 
-            await _historiesService.Create(history);
+            await _historyService.Create(history);
 
             return Ok("Success to add product");
         }
@@ -482,9 +482,9 @@ namespace eShopSolution.BackendApi.Controllers
             Product? product = await _productService.GetById(productId);
             if (product == null) throw new EShopException($"Can not find a product by id: {productId}");
 
-            product.ProductCategories = await _productCategoriesService.GetByProductId(productId);
-            product.ProductDistributors = await _productDistributorsService.GetByProductId(productId);
-            product.ProductImages = await _productImagesService.GetByProductId(productId);
+            product.ProductCategories = await _productCategoryService.GetByProductId(productId);
+            product.ProductDistributors = await _productDistributorService.GetByProductId(productId);
+            product.ProductImages = await _productImageService.GetByProductId(productId);
 
             /*update new product*/
             product.Name = request.Name;
@@ -498,13 +498,13 @@ namespace eShopSolution.BackendApi.Controllers
             //Remove foreign key Old
             foreach (var item in product.ProductCategories)
             {
-                _productCategoriesService.RemoveNotSave(item);
+                _productCategoryService.RemoveNotSave(item);
             }
             product.ProductCategories = new List<ProductCategory>();
 
             foreach (var item in product.ProductDistributors)
             {
-                _productDistributorsService.RemoveNotSave(item);
+                _productDistributorService.RemoveNotSave(item);
             }
             product.ProductDistributors = new List<ProductDistributor>();
 
@@ -565,7 +565,7 @@ namespace eShopSolution.BackendApi.Controllers
             if (product == null) return BadRequest($"Can not find a product by id: {productId}");
 
             //delete image
-            var thumbnaiImages = await _productImagesService.GetByProductId(productId);
+            var thumbnaiImages = await _productImageService.GetByProductId(productId);
 
             if (thumbnaiImages.Count() > 0)
             {
