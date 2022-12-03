@@ -14,7 +14,6 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "UserView")]
     public class UsersController : ControllerBase
     {
         private readonly IStorageService _storageService;
@@ -28,7 +27,83 @@ namespace eShopSolution.BackendApi.Controllers
             _userRoleService = userRoleService;
         }
 
+        [HttpGet("/api/public/[controller]/{userId}")]
+        public async Task<ActionResult> GetByIdPublic(int userId)
+        {
+            var user = await _userService.GetById(userId);
+            if (user == null) return BadRequest("Cannot find product");
+
+            //set image
+            if (user.AvatarImage != null)
+            {
+                user.AvatarImage = _storageService.GetFileUrl(user.AvatarImage);
+            }
+
+            var userVM = new UserViewModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
+                AvatarImage = user.AvatarImage,
+                Address = user.Address,
+            };
+
+            return Ok(userVM);
+        }
+
+        [HttpPatch("/api/public/[controller]/{userId}")]
+        public async Task<ActionResult> UpdatePublic(int userId, [FromForm] UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            //Check Code User
+            var userByUserName = await _userService.GetByUserName(request.UserName);
+
+            if (userByUserName != null && userByUserName.Id != userId)
+            {
+                ModelState.AddModelError("userName", "UserName invalid");
+                return BadRequest(ModelState);
+            }
+
+            //get old user
+            AppUser? user = await _userService.GetById(userId);
+            if (user == null) throw new EShopException($"Can not find a product by id: {userId}");
+
+            /*update new user*/
+            user.FullName = request.FullName;
+            user.UserName = request.UserName;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Email = request.Email;
+            user.Address = request.Address;
+
+            //Save image
+            if (request.AvatarImage != null && request.AvatarImage.Count > 0)
+            {
+                //Add new
+                user.AvatarImage = await this.SaveFile(request.AvatarImage[0]);
+            }
+
+            var result = await _userService.Update(user);
+            if (result == 0) return BadRequest();
+
+            var userVM = new UserViewModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FullName = user.FullName,
+                AvatarImage = _storageService.GetFileUrl(user.AvatarImage),
+                Address = user.Address,
+            };
+
+            return Ok(userVM);
+        }
+
         [HttpGet]
+        [Authorize(Policy = "UserView")]
         public async Task<ActionResult> Get([FromQuery] UserGetRequest request)
         {
             var query = _userService.GetAll();
@@ -63,6 +138,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize(Policy = "UserView")]
         public async Task<ActionResult> GetById(int userId)
         {
             var user = await _userService.GetById(userId);
@@ -95,12 +171,13 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPatch("{userId}")]
+        [Authorize(Policy = "UserView")]
         [Authorize(Policy = "UserUpdate")]
         public async Task<ActionResult> Update(int userId, [FromForm] UserUpdateRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            //Check Code Product
+            //Check Code user
             var userByUserName = await _userService.GetByUserName(request.UserName);
 
             if (userByUserName != null && userByUserName.Id != userId)
@@ -165,6 +242,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpDelete("{userId}")]
+        [Authorize(Policy = "UserView")]
         [Authorize(Policy = "UserRemove")]
         public async Task<ActionResult> Remove(int userId)
         {

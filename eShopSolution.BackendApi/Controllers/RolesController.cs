@@ -49,7 +49,7 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> GetById(int roleId)
         {
             var role = await _roleService.GetById(roleId);
-            if (role == null) return BadRequest("Cannot find product");
+            if (role == null) return BadRequest("Cannot find role");
 
             return Ok(role);
         }
@@ -69,9 +69,9 @@ namespace eShopSolution.BackendApi.Controllers
             };
 
             var roleId = await _roleService.Create(role);
-            if (roleId == 0) return BadRequest("Fail to add product");
+            if (roleId == 0) return BadRequest("Fail to add role");
 
-            return Ok("Success to add product");
+            return Ok("Success to add role");
         }
 
         //http://localhost:port/Roles/1
@@ -83,7 +83,7 @@ namespace eShopSolution.BackendApi.Controllers
 
             //get old product
             AppRole? role = await _roleService.GetById(roleId);
-            if (role == null) throw new EShopException($"Can not find a product by id: {roleId}");
+            if (role == null) throw new EShopException($"Can not find a role by id: {roleId}");
 
             /*update new product*/
             role.Name = request.Name;
@@ -101,12 +101,12 @@ namespace eShopSolution.BackendApi.Controllers
         public async Task<ActionResult> Remove(int roleId)
         {
             var role = await _roleService.GetById(roleId);
-            if (role == null) return BadRequest($"Can not find a product by id: {roleId}");
+            if (role == null) return BadRequest($"Can not find a role by id: {roleId}");
 
             var result = await _roleService.Remove(role);
-            if (result == 0) return BadRequest("Fail to remove product");
+            if (result == 0) return BadRequest("Fail to remove role");
 
-            return Ok("Remove product success");
+            return Ok("Remove role success");
         }
     }
 }

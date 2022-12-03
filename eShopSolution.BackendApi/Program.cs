@@ -46,6 +46,7 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<IRoleClaimService, RoleClaimService>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
 builder.Services.AddTransient<IStatusService, StatusService>();
@@ -82,6 +83,16 @@ builder.Services.AddControllers()
                      options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                      options.JsonSerializerOptions.WriteIndented = true;
                  });
+
+var CorsPolicy = "_corsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: CorsPolicy, policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -180,11 +191,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CustomerUpdate", policy => policy.RequireClaim("customer", "customer.update"));
     options.AddPolicy("CustomerRemove", policy => policy.RequireClaim("customer", "customer.remove"));
 
-    options.AddPolicy("OrderView", policy => policy.RequireClaim("order", "order.view"));
-    options.AddPolicy("OrderCreate", policy => policy.RequireClaim("order", "order.create"));
-    options.AddPolicy("OrderUpdate", policy => policy.RequireClaim("order", "order.update"));
-    options.AddPolicy("OrderRemove", policy => policy.RequireClaim("order", "order.remove"));
-
+    //role & roleClaim common use 
     options.AddPolicy("PermissionView", policy => policy.RequireClaim("permission", "permission.view"));
     options.AddPolicy("PermissionCreate", policy => policy.RequireClaim("permission", "permission.create"));
     options.AddPolicy("PermissionUpdate", policy => policy.RequireClaim("permission", "permission.update"));
@@ -219,12 +226,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //Show UseCors with CorsPolicyBuilder
-app.UseCors(builder =>
-{
-    builder.AllowAnyOrigin()
-           .AllowAnyMethod()
-           .AllowAnyHeader();
-});
+app.UseCors(CorsPolicy);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

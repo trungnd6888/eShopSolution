@@ -36,6 +36,79 @@ namespace eShopSolution.BackendApi.Controllers
             _userService = userService;
         }
 
+        [HttpGet("/api/public/[controller]")]
+        public async Task<ActionResult> GetPublic([FromQuery] OrderGetRequest request)
+        {
+            var query = from o in _orderService.GetAll()
+                        join s in _statusService.GetAll() on o.StatusId equals s.Id
+                        into tableS
+                        from itemS in tableS.DefaultIfEmpty()
+                        join u in _userService.GetAll() on o.UserId equals u.Id
+                        into tableU
+                        from itemU in tableU.DefaultIfEmpty()
+                        select new { o, itemS, itemU };
+
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(x => x.o.Name.Contains(request.Keyword.Trim())
+                || x.o.Email.Contains(request.Keyword.Trim())
+                || x.o.Address.Contains(request.Keyword.Trim()));
+            }
+
+            //get by userId
+            if (request.UserId != null)
+            {
+                query = query.Where(x => x.o.UserId == request.UserId);
+            }
+
+            var totalRecord = await query.CountAsync();
+
+            var data = await query.Select(x => new OrderViewModel()
+            {
+                Id = x.o.Id,
+                Name = x.o.Name,
+                Email = x.o.Email,
+                Address = x.o.Address,
+                Tel = x.o.Tel,
+                Code = x.o.Code,
+                CreateDate = x.o.CreateDate,
+                UserId = x.o.UserId,
+                StatusId = x.o.StatusId,
+                UserName = x.itemU.UserName,
+                StatusName = x.itemS.Name,
+                OrderDetails = new List<OrderDetailViewModel>(),
+            }).ToListAsync();
+
+            //orderDetails
+            foreach (var item in data)
+            {
+                var queryDetail = from od in _orderDetailService.GetByOrderId(item.Id)
+                                  join p in _productService.GetAll() on od.ProductId equals p.Id
+                                  select new { od, p };
+
+                var orderDetails = await queryDetail.Select(x => new OrderDetailViewModel()
+                {
+                    ProductName = x.p.Name,
+                    ProductCode = x.p.Code,
+                    ProductPrice = x.p.Price,
+                    ProductId = x.od.ProductId,
+                    OrderId = item.Id,
+                    Quantity = x.od.Quantity,
+                }).ToListAsync();
+
+                item.OrderDetails = orderDetails;
+                item.TotalAmount = orderDetails.Sum(x => x.Quantity * x.ProductPrice);
+            }
+
+            var orders = new PageResult<OrderViewModel>()
+            {
+                Data = data,
+                TotalRecord = totalRecord,
+            };
+
+            return Ok(orders);
+        }
+
         [HttpPost("/api/public/[controller]")]
         public async Task<ActionResult> CreatePublic([FromBody] OrderCreateRequest request)
         {
@@ -120,7 +193,7 @@ namespace eShopSolution.BackendApi.Controllers
                 CreateDate = x.o.CreateDate,
                 UserId = x.o.UserId,
                 StatusId = x.o.StatusId,
-                UserName = x.itemU.FullName,
+                UserName = x.itemU.UserName,
                 StatusName = x.itemS.Name,
                 OrderDetails = new List<OrderDetailViewModel>(),
             }).ToListAsync();

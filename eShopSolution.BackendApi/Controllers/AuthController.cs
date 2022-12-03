@@ -19,6 +19,18 @@ namespace eShopSolution.BackendApi.Controllers
             _authService = authService;
         }
 
+        [HttpPost("/api/public/[controller]/changePassword")]
+        public async Task<IActionResult> ChangePasswordPublic([FromBody] ChangePasswordRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ChangePassword(request);
+
+            if (result["result"] == null) return BadRequest(new { error = result["error"] });
+
+            return Ok("Success to change password");
+        }
+
         [HttpPost("/api/public/[controller]/authenticate")]
         public async Task<IActionResult> AuthenticatePublic([FromBody] LoginRequest request)
         {
@@ -156,7 +168,19 @@ namespace eShopSolution.BackendApi.Controllers
 
             if (result["result"] == null) return BadRequest(new { error = result["error"] });
 
-            return Ok();
+            return Ok("Success to reset password");
+        }
+
+        [HttpPost("changePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _authService.ChangePassword(request);
+
+            if (result["result"] == null) return BadRequest(new { error = result["error"] });
+
+            return Ok("Success to change password");
         }
     }
 }

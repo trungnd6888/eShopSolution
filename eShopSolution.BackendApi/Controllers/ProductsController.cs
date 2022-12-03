@@ -224,7 +224,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(productVM);
         }
 
-        //http://localhost:port/Products?PageIndex=1&PageSize=10&Keyword=abc&CategoryIds=1&CategoryIds=2
         [HttpGet]
         [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> Get([FromQuery] ProductGetRequest request)
@@ -313,7 +312,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(products);
         }
 
-        //http://localhost:port/Products/1
         [HttpGet("{productId}")]
         [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> GetById(int productId)
@@ -375,7 +373,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(productVM);
         }
 
-        //http://localhost:port/Products
         [HttpPost]
         [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductCreate")]
@@ -460,7 +457,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok("Success to add product");
         }
 
-        //http://localhost:port/Products/1
         [HttpPatch("{productId}")]
         [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductUpdate")]
@@ -555,7 +551,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok();
         }
 
-        //http://localhost:port/Products/1
         [HttpDelete("{productId}")]
         [Authorize(Policy = "ProductView")]
         [Authorize(Policy = "ProductRemove")]
@@ -581,7 +576,6 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok("Remove product success");
         }
 
-        //http://localhost:port/Products/1/5000
         [HttpPatch("{productId}/{newPrice}")]
         [Authorize(Policy = "ProductView")]
         public async Task<ActionResult> UpdatePrice(int productId, double newPrice)
@@ -636,6 +630,15 @@ namespace eShopSolution.BackendApi.Controllers
             var image = await _productService.GetImageById(imageId);
 
             return Ok(image);
+        }
+
+        public async Task<ActionResult> GetTotalProduct()
+        {
+            var products = _productService.GetAll();
+
+            var totalRecord = await products.CountAsync();
+
+            return Ok(totalRecord);
         }
 
         private async Task<string> SaveFile(IFormFile file)
