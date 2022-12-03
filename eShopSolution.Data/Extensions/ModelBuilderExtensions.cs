@@ -44,13 +44,13 @@ namespace eShopSolution.Data.Extensions
             );
 
             modelBuilder.Entity<AppUser>().HasData(
-                new AppUser { Id = 1, FullName = "Nguyễn Phúc Đức", UserName = "ducnp", Email = "duc@gmail.com", PhoneNumber = "098765446" }
+                new AppUser { Id = 1, FullName = "admin", UserName = "admin", Email = "admin@gmail.com", PhoneNumber = "098888888" }
             );
 
             modelBuilder.Entity<AppRole>().HasData(
-                new AppRole { Id = 1, Name = "admin", Description = "Quản trị viên" },
-                new AppRole { Id = 2, Name = "member", Description = "Thành viên" },
-                new AppRole { Id = 3, Name = "customer", Description = "Khách hàng" }
+                new AppRole { Id = 1, Name = "admin", NormalizedName = "admin", Description = "Quản trị viên" },
+                new AppRole { Id = 2, Name = "member", NormalizedName = "member", Description = "Thành viên" },
+                new AppRole { Id = 3, Name = "customer", NormalizedName = "customer", Description = "Khách hàng" }
             );
 
             modelBuilder.Entity<Action>().HasData(

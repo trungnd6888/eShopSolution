@@ -75,6 +75,8 @@ namespace eShopSolution.Application.System.Auth
             {
                 foreach (var role in roles)
                 {
+                    if (role == null) continue;
+
                     var claimOfRoles = await _roleManager.GetClaimsAsync(role);
 
                     claimOfRoles.ToList().ForEach(x => roleClaims.Add(x));
@@ -162,6 +164,7 @@ namespace eShopSolution.Application.System.Auth
             //change password
             token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
             var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
+
             if (!result.Succeeded) return new Hashtable()
             {
                 { "error", result.Errors},
@@ -176,6 +179,28 @@ namespace eShopSolution.Application.System.Auth
         public async Task SaveChange()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Hashtable> ChangePassword(ChangePasswordRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+
+            if (user == null) return new Hashtable()
+            {
+                {  "error" , "Can not find a user" }
+            };
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.Password);
+
+            if (!result.Succeeded) return new Hashtable()
+            {
+                { "error", result.Errors}
+            };
+
+            return new Hashtable()
+            {
+                { "result", true }
+            };
         }
     }
 }
