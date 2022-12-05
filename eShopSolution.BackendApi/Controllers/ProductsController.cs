@@ -444,15 +444,7 @@ namespace eShopSolution.BackendApi.Controllers
             await _productService.SaveChange();
 
             //add history
-            History history = new History()
-            {
-                Time = DateTime.Now,
-                ActionId = (int)ActionId.CREATE,
-                FormId = (int)FormId.PRODUCT,
-                UserId = request.UserId,
-            };
-
-            await _historyService.Create(history);
+            await AddHistory((int)ActionId.CREATE, (int)FormId.PRODUCT, request.UserId);
 
             return Ok("Success to add product");
         }
@@ -548,7 +540,10 @@ namespace eShopSolution.BackendApi.Controllers
             var result = await _productService.Update(product);
             if (result == 0) return BadRequest();
 
-            return Ok();
+            //add history
+            await AddHistory((int)ActionId.UPDATE, (int)FormId.PRODUCT, request.UserId);
+
+            return Ok("Update product to success");
         }
 
         [HttpDelete("{productId}")]
@@ -632,7 +627,9 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(image);
         }
 
-        public async Task<ActionResult> GetTotalProduct()
+        [HttpGet("total")]
+        [Authorize(Policy = "ProductView")]
+        public async Task<ActionResult> GetTotalAll()
         {
             var products = _productService.GetAll();
 
@@ -707,6 +704,19 @@ namespace eShopSolution.BackendApi.Controllers
                           });
                 }
             }
+        }
+
+        private async Task AddHistory(int actionId, int formId, int userId)
+        {
+            History history = new History()
+            {
+                Time = DateTime.Now,
+                ActionId = actionId,
+                FormId = formId,
+                UserId = userId,
+            };
+
+            await _historyService.Create(history);
         }
     }
 }

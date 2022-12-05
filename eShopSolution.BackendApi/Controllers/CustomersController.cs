@@ -12,7 +12,6 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "CustomerView")]
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
@@ -25,6 +24,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "CustomerView")]
         public async Task<ActionResult> Get([FromQuery] CustomerGetRequest request)
         {
             var query = _customerService.GetAll();
@@ -57,6 +57,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpGet("{customerId}")]
+        [Authorize(Policy = "CustomerView")]
         public async Task<ActionResult> GetById(int customerId)
         {
             var customer = await _customerService.GetById(customerId);
@@ -69,6 +70,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "CustomerView")]
         public async Task<ActionResult> Create([FromForm] CustomerCreateRequest request)
         {
             Customer customer = new Customer();
@@ -91,6 +93,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpPatch("{customerId}")]
+        [Authorize(Policy = "CustomerView")]
         public async Task<ActionResult> Update(int customerId, [FromForm] CustomerUpdateRequest request)
         {
             var customer = await _customerService.GetById(customerId);
@@ -133,6 +136,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         [HttpDelete("{customerId}")]
+        [Authorize(Policy = "CustomerView")]
         public async Task<ActionResult> Remove(int customerId)
         {
             var customer = await _customerService.GetById(customerId);
@@ -144,6 +148,17 @@ namespace eShopSolution.BackendApi.Controllers
             if (result > 0) return Ok("Remove customer success");
 
             return BadRequest("Fail to remove customer");
+        }
+
+        [HttpGet("total")]
+        [Authorize(Policy = "CustomerView")]
+        public async Task<ActionResult> GetTotalAll()
+        {
+            var customers = _customerService.GetAll();
+
+            var totalRecord = await customers.CountAsync();
+
+            return Ok(totalRecord);
         }
 
         private async Task<string> SaveFile(IFormFile file)

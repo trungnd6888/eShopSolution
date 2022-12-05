@@ -240,6 +240,23 @@ namespace eShopSolution.BackendApi.Controllers
             return BadRequest("Fail to remove news");
         }
 
+        [HttpGet("new")]
+        [Authorize(Policy = "NewsView")]
+        public async Task<ActionResult> GetNew()
+        {
+            var news = await _newsService.GetAll().OrderByDescending(x => x.CreateDate).Take(5).ToListAsync();
+
+            foreach (var item in news)
+            {
+                if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    item.ImageUrl = _storageService.GetFileUrl(item.ImageUrl);
+                }
+            }
+
+            return Ok(news);
+        }
+
         private async Task<string> SaveFile(IFormFile file)
         {
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');

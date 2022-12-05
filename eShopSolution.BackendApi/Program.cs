@@ -46,6 +46,7 @@ builder.Services.AddDefaultIdentity<AppUser>()
                 .AddDefaultTokenProviders();
 
 //Declare DI
+builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
 builder.Services.AddTransient<IRoleClaimService, RoleClaimService>();
 builder.Services.AddTransient<IMailService, MailService>();
 builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();

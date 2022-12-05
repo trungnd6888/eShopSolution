@@ -68,6 +68,27 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(history);
         }
 
+        [HttpGet("new")]
+        public async Task<ActionResult> GetNew()
+        {
+            var query = from h in _historyService.GetAll()
+                        join u in _userService.GetAll() on h.UserId equals u.Id
+                        join f in _formService.GetAll() on h.FormId equals f.Id
+                        join a in _actionService.GetAll() on h.ActionId equals a.Id
+                        select new { h, u, f, a };
+
+            var histories = await query.OrderByDescending(x => x.h.Time).Take(10).Select(x => new
+            {
+                Id = x.h.Id,
+                UserName = x.u.UserName,
+                FormName = x.f.Name,
+                ActionName = x.a.Name,
+                ActionId = x.a.Id,
+            }).ToListAsync();
+
+            return Ok(histories);
+        }
+
         [HttpPost]
         public async Task<ActionResult> Create(HistoryGetRequest request)
         {
