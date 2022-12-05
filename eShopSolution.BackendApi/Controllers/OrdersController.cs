@@ -348,6 +348,17 @@ namespace eShopSolution.BackendApi.Controllers
             return BadRequest("Fail to remove order");
         }
 
+        [HttpGet("total")]
+        [Authorize(Policy = "OrderView")]
+        public async Task<ActionResult> GetTotalAll()
+        {
+            var orders = _orderService.GetAll();
+
+            var totalRecord = await orders.CountAsync();
+
+            return Ok(totalRecord);
+        }
+
         private string getProductCode()
         {
             int _min = 1000;
