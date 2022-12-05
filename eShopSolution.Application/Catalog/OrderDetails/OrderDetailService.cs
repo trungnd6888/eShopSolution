@@ -12,6 +12,11 @@ namespace eShopSolution.Application.Catalog.OrderDetails
             _context = context;
         }
 
+        public IQueryable<OrderDetail> GetAll()
+        {
+            return _context.OrderDetails;
+        }
+
         public IQueryable<OrderDetail> GetByOrderId(int orderId)
         {
             return _context.OrderDetails.Where(x => x.OrderId == orderId);
