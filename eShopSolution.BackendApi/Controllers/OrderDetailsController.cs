@@ -19,7 +19,7 @@ namespace eShopSolution.BackendApi.Controllers
             _productService = productService;
         }
 
-        [HttpGet("total")]
+        [HttpGet("/api/total/[controller]")]
         [Authorize(Policy = "OrderView")]
         public async Task<ActionResult> GetTotalPrice()
         {
@@ -32,7 +32,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(totalPrice);
         }
 
-        [HttpGet("totalquantity")]
+        [HttpGet("/api/totalquantity/[controller]")]
         [Authorize(Policy = "OrderView")]
         public async Task<ActionResult> GetTotalQuantity()
         {

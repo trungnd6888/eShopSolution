@@ -56,11 +56,13 @@ namespace eShopSolution.BackendApi.Controllers
             var query = from p in _productService.GetAll()
                         join u in _userService.GetAll() on p.UserId equals u.Id
                         join b in _brandService.GetAll() on p.BrandId equals b.Id
+                        into tableB
+                        from itemB in tableB.DefaultIfEmpty()
                         join ua in _userService.GetAll() on p.ApprovedId equals ua.Id
                         join pc in _productCategoryService.GetAll() on p.Id equals pc.ProductId
                         into table
                         from item in table.DefaultIfEmpty()
-                        select new { p, u, b, ua, item };
+                        select new { p, u, itemB, ua, item };
 
             if (!string.IsNullOrEmpty(request.Keyword))
             {
@@ -90,13 +92,10 @@ namespace eShopSolution.BackendApi.Controllers
                 UserId = grp.Select(x => x.p.UserId).FirstOrDefault(),
                 BrandId = grp.Select(x => x.p.BrandId).FirstOrDefault(),
                 UserName = grp.Select(x => x.u.UserName).FirstOrDefault(),
-                BrandName = grp.Select(x => x.b.Name).FirstOrDefault(),
+                BrandName = grp.Select(x => x.itemB.Name).FirstOrDefault(),
                 ApprovedId = grp.Select(x => x.p.ApprovedId).FirstOrDefault(),
                 ApprovedName = grp.Select(x => x.ua.UserName).FirstOrDefault(),
             });
-
-            //paging
-            int totalRecord = await queryGroupBy.CountAsync();
 
             //var data = await queryGroupBy.OrderByDescending(x => x.CreateDate).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
             var data = await queryGroupBy.Select(x => new ProductViewModel()
@@ -117,6 +116,9 @@ namespace eShopSolution.BackendApi.Controllers
                 ApprovedId = x.ApprovedId,
                 ApprovedName = x.ApprovedName,
             }).Where(x => x.IsApproved == true).ToListAsync();
+
+            //paging
+            int totalRecord = data.Count;
 
             //Set categories, brands, distributors, Images for data
             foreach (var item in data)
