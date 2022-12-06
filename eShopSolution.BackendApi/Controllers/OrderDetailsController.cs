@@ -19,7 +19,7 @@ namespace eShopSolution.BackendApi.Controllers
             _productService = productService;
         }
 
-        [HttpGet("/api/total/[controller]")]
+        [HttpGet("total")]
         [Authorize(Policy = "OrderView")]
         public async Task<ActionResult> GetTotalPrice()
         {
