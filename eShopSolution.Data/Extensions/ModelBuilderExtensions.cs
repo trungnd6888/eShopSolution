@@ -21,9 +21,9 @@ namespace eShopSolution.Data.Extensions
             );
 
             modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Đồng hồ Rolex", Detail = "Automatic", Code = "DH0001", Price = 88000, UserId = 1, ApprovedId = 1 },
-                new Product { Id = 2, Name = "Đồng hồ Patek Phillip", Detail = "Automatic", Code = "DH0002", Price = 10000, UserId = 1, ApprovedId = 1 },
-                new Product { Id = 3, Name = "Đồng hồ Hublot", Detail = "Automatic", Code = "DH0003", Price = 2000, UserId = 1, ApprovedId = 1 }
+                new Product { Id = 1, Name = "Đồng hồ Rolex", Detail = "Automatic", Code = "DH0001", Price = 88000, ApprovedId = 1 },
+                new Product { Id = 2, Name = "Đồng hồ Patek Phillip", Detail = "Automatic", Code = "DH0002", Price = 10000, ApprovedId = 1 },
+                new Product { Id = 3, Name = "Đồng hồ Hublot", Detail = "Automatic", Code = "DH0003", Price = 2000, ApprovedId = 1 }
             );
 
             modelBuilder.Entity<Category>().HasData(
@@ -41,10 +41,6 @@ namespace eShopSolution.Data.Extensions
                 new ProductCategory { CategoryId = 1, ProductId = 1 },
                 new ProductCategory { CategoryId = 1, ProductId = 2 },
                 new ProductCategory { CategoryId = 1, ProductId = 3 }
-            );
-
-            modelBuilder.Entity<AppUser>().HasData(
-                new AppUser { Id = 1, FullName = "admin", UserName = "admin", Email = "admin@gmail.com", PhoneNumber = "098888888" }
             );
 
             modelBuilder.Entity<AppRole>().HasData(
