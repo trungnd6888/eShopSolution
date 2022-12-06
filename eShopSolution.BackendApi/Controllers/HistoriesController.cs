@@ -68,7 +68,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(history);
         }
 
-        [HttpGet("new")]
+        [HttpGet("/api/new/[controller]")]
         public async Task<ActionResult> GetNew()
         {
             var query = from h in _historyService.GetAll()

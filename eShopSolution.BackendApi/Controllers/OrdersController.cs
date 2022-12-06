@@ -348,7 +348,7 @@ namespace eShopSolution.BackendApi.Controllers
             return BadRequest("Fail to remove order");
         }
 
-        [HttpGet("total")]
+        [HttpGet("/api/total/[controller]")]
         [Authorize(Policy = "OrderView")]
         public async Task<ActionResult> GetTotalAll()
         {
